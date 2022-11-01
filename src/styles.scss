@@ -1,7 +1,4 @@
-@mixin some() {
-  color: red;
-}
 
-.some {
-    @include some();
+html {
+    font-family: "Roboto", sans-serif;
 }

@@ -1,19 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{{ title }}</title>
     <meta name="description" content="{{ description }}" />
     <meta name="keywords" content="{{ keywords }}" />
     <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
-    <link rel="stylesheet" href="{{ "src/styles.scss" | inputToRevvedOutput }}" />
+    <link rel="stylesheet" href="{{
+      "src/styles.scss" | inputToRevvedOutput
+    }}" />
   </head>
   <body>
     {% include 'header.njk' %}
 
-    {{ content | safe }}
-
+    <main>
+      {{ content | safe }}
+    </main>
 
     {% include 'footer.njk' %}
   </body>

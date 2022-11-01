@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "clear": "rm -r dist",
+    "fonts": "cd scripts && gulp && cd ..",
     "start": "eleventy --serve"
   },
   "author": "",
@@ -12,6 +13,8 @@
   "dependencies": {
     "@11ty/eleventy": "^1.0.2",
     "eleventy-plugin-rev": "^1.0.2",
-    "eleventy-sass": "^2.1.3"
+    "eleventy-sass": "^2.1.3",
+    "get-google-fonts": "^1.2.2",
+    "gulp": "^4.0.2"
   }
 }
