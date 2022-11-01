@@ -1,0 +1,7 @@
+@mixin some() {
+  color: red;
+}
+
+.some {
+    @include some();
+}
