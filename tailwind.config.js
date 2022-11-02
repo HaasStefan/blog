@@ -4,7 +4,11 @@ module.exports = {
     "./src/**/*.{njk,html,js}"
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        "atom-dark": '#282c34'
+      }
+    },
   },
   plugins: [],
 }
