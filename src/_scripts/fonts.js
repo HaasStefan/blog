@@ -5,7 +5,7 @@ const fonts = async () => {
   // Setup of the library instance by setting where we want
   // the output to go. CSS is relative to output font directory
   const instance = new GetGoogleFonts({
-    outputDir: '../src/assets/fonts',
+    outputDir: '../assets/fonts',
     cssFile: './fonts.css'
   });
 

@@ -10,9 +10,12 @@
     <link rel="stylesheet" href="{{
       "src/styles.scss" | inputToRevvedOutput
     }}" />
+    <link rel="stylesheet" href="/css/style.css" />
   </head>
   <body>
     {% include 'header.njk' %}
+
+    <div class="text-red-700">testsetests</div>
 
     <main>
       {{ content | safe }}

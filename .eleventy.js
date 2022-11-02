@@ -2,6 +2,9 @@ const pluginRev = require("eleventy-plugin-rev");
 const eleventySass = require("eleventy-sass");
 
 module.exports = function (eleventyConfig) {
+  eleventyConfig.addWatchTarget('./styles/tailwind.config.js')
+  eleventyConfig.addWatchTarget('./styles/tailwind.css')
+
   eleventyConfig.addPlugin(pluginRev);
   eleventyConfig.addPlugin(eleventySass, {
     compileOptions: {
@@ -19,7 +22,7 @@ module.exports = function (eleventyConfig) {
   });
 
   eleventyConfig.addPassthroughCopy("src/assets");
-  eleventyConfig.addPassthroughCopy("src/fonts");
+  // eleventyConfig.addPassthroughCopy("src/styles");
 
   return {
     dir: {
