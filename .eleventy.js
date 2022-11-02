@@ -1,9 +1,25 @@
 const pluginRev = require("eleventy-plugin-rev");
 const eleventySass = require("eleventy-sass");
+const esbuild = require("esbuild");
+
 
 module.exports = function (eleventyConfig) {
-  eleventyConfig.addWatchTarget('./styles/tailwind.config.js')
-  eleventyConfig.addWatchTarget('./styles/tailwind.css')
+  eleventyConfig.addWatchTarget('./tailwind.config.js')
+  eleventyConfig.addWatchTarget('./css/tailwind.css')
+  eleventyConfig.addWatchTarget("./src/js/");
+
+  eleventyConfig.on("eleventy.before", async () => {
+    await esbuild.build({
+      entryPoints: [
+        "src/js/index.js",
+        "src/js/copy.js"
+      ],
+      bundle: true,
+      sourcemap: false,
+      outdir: "dist/js",
+    });
+  });
+
 
   eleventyConfig.addPlugin(pluginRev);
   eleventyConfig.addPlugin(eleventySass, {
