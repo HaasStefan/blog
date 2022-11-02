@@ -11,16 +11,17 @@
       "src/styles.scss" | inputToRevvedOutput
     }}" />
     <link rel="stylesheet" href="/css/style.css" />
-  </head>
+    <script src="https://kit.fontawesome.com/d760aeaac6.js" crossorigin="anonymous"></script>
+    </head>
   <body>
-    {% include 'header.njk' %}
-
-    <div class="text-red-700">testsetests</div>
+    <div class="grid grid-cols-8 grid-rows-1">
+      <div></div>
+      <div class="col-span-6">{% include 'code.njk' %}</div>
+      <div></div>
+    </div>
 
     <main>
       {{ content | safe }}
     </main>
-
-    {% include 'footer.njk' %}
   </body>
 </html>
