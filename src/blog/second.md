@@ -1,7 +1,8 @@
 ---
-title: Second
+title: Second asdf asdf afdasd f asdf asd fsd f
 author: Stefan Haas
 date: 2022-11-04
+keywords: [angular, module-federation, micro-frontends]
 image: https://images.indepth.dev/images/2021/03/Global-objects-in-Angular.jpeg
 imageAlt: Second Cover Image
 description: Short summary

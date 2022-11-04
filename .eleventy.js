@@ -1,7 +1,7 @@
 const pluginRev = require("eleventy-plugin-rev");
 const eleventySass = require("eleventy-sass");
 const esbuild = require("esbuild");
-
+const {DateTime} = require("luxon");
 
 module.exports = function (eleventyConfig) {
   eleventyConfig.addWatchTarget('./tailwind.config.js')
@@ -18,6 +18,15 @@ module.exports = function (eleventyConfig) {
       sourcemap: false,
       outdir: "dist/js",
     });
+  });
+
+  eleventyConfig.addFilter("date", (date) => {
+    return new Intl.DateTimeFormat('en-US').format(new Date(date))
+  });
+
+  eleventyConfig.addFilter("truncate", (str) => {
+    let prepared = str.replace("<p>", "").replace("</p>");
+    return prepared.length > 220 ? prepared.slice(0, 220) + "..." : prepared
   });
 
 

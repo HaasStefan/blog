@@ -1,10 +1,11 @@
 ---
-title: Angular Dynamic Microfrontends
+title: Second asdf 
 author: Stefan Haas
-date: 2022-11-03
-keywords: [ angular ]
+date: 2022-11-04
+keywords: [angular]
 image: https://images.indepth.dev/images/2021/03/Global-objects-in-Angular.jpeg
-imageAlt: first Cover Image
+imageAlt: Second Cover Image
+description: Short summary
 ---
 
 The key idea behind microfrontends is to lazy load code at runtime, such
@@ -14,5 +15,4 @@ are working on a project and independent deployment is necessary for
 productivity.
 
 # hello
-
 ## test
