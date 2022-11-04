@@ -8,7 +8,8 @@
     "fonts": "cd src/_scripts && gulp && cd ../..",
     "serve": "eleventy --serve",
     "tailwind": "npx tailwindcss -i src/css/tailwind.css -o dist/css/style.css --watch",
-    "start": "npx concurrently \"npm run tailwind\" \"npm run serve\""
+    "start": "npx concurrently \"npm run tailwind\" \"npm run serve\"",
+    "restart": "npm run clean && npm start"
   },
   "author": "",
   "license": "ISC",

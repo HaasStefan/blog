@@ -1,0 +1,40 @@
+
+<div id="app-paginator" class="w-full mt-6 mb-6 flex justify-center" current="{{pagination.pageNumber}}" hrefs="{{pagination.hrefs}}">
+
+</div>
+
+<template id="t-nav">
+  <nav class="flex flex-row gap-1 "></nav>
+</template>
+
+<template id="t-previous">
+  <button type="button" id="previous" class="hover:bg-blue-100 hover:text-blue-500 w-8 flex justify-center items-center rounded-lg">
+    <a><i class="fa-solid fa-chevron-left"></i></a>
+  </button>
+</template>
+
+<template id="t-active">
+  <button type="button" class="p-2 font-medium rounded-lg text-blue-500 bg-blue-100  w-8 flex justify-center">
+    <a></a>
+  </button>
+</template>
+
+<template id="t-inactive">
+  <button type="button" class="p-2 font-medium rounded-lg hover:bg-blue-100 hover:text-blue-500 w-8 flex justify-center">
+    <a></a>
+  </button>
+</template>
+
+<template id="t-dotdotdot">
+  <div class="p-2 w-8 items-baseline">
+    ...
+  </div>
+</template>
+
+<template id="t-next">
+  <button type="button" id="next" class="hover:bg-blue-100 hover:text-blue-500 w-8 flex justify-center items-center rounded-lg">
+    <a><i class="fa-solid fa-chevron-right"></i></a>
+  </button>
+</template>
+
+<script src="/js/paginator.js"></script>

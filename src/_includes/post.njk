@@ -2,16 +2,15 @@
 layout: 'base.njk'
 ---
 
-<div class="sm:flex sm:justify-center mt-3">
-  <div class="max-w-screen-lg flex-auto p-2">
-    <h1 class="text-4xl font-bold mb-3">Angular Dynamic Microfrontends</h1>
+<div class="sm:flex sm:justify-center">
+  <div class="max-w-screen-lg flex-auto p-4 bg-white shadow-xl">
+    <h1 class="text-4xl font-bold mt-3 mb-3">Angular Dynamic Microfrontends</h1>
     <h2 class="text-xl text-neutral-600 font-bold mb-6">Using manifests and dynamic routing</h2>
 
-    <img
-      src="https://images.indepth.dev/images/2021/03/Global-objects-in-Angular.jpeg"
-      class="shadow-xl rounded-lg mb-3"
-      alt="cover-image"
-    />
+
+    {% set image = "https://images.indepth.dev/images/2021/03/Global-objects-in-Angular.jpeg" %}
+    {% set imageAlt = "cover-image" %}
+    {% include 'image.njk' %}
 
     <h2 class="text-2xl font-semibold mt-3 mb-2">Introduction</h2>
     <p>

@@ -1,5 +1,6 @@
-<div class="rounded-lg bg-atom-dark shadow-xl">
-  <!--<div class="md:flex flew-row justify-between bg-zinc-00 pt-2 pr-2 pl-2 rounded-t-lg hidden md:visible">
+<div class="mt-3 mb-3">
+  <div class="rounded-lg bg-atom-dark shadow-xl">
+    <!--<div class="md:flex flew-row justify-between bg-zinc-00 pt-2 pr-2 pl-2 rounded-t-lg hidden md:visible">
     <div class="flex flex-row gap-1 mt-1">
       <div class="rounded-full bg-red-400 w-3 h-3"></div>
       <div class="rounded-full bg-yellow-400 w-3 h-3"></div>
@@ -16,8 +17,8 @@
     </button>
   </div>-->
 
-  <div class="text-white rounded-lg">
-    <pre><code class="language-typescript code-overflow rounded-lg" id="code-content">/** @type {import('tailwindcss').Config} */
+    <div class="text-white rounded-lg">
+      <pre><code class="language-typescript code-overflow rounded-lg" id="code-content">/** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
     "./src/**/*.{njk,html,js}"
@@ -27,12 +28,15 @@ module.exports = {
   },
   plugins: [],
 }</code></pre>
+    </div>
+  </div>
+
+  <div class="mt-1 text-center font-medium text-neutral-500">
+    tailwind.config.js
   </div>
 </div>
 
-<div class="mt-1 text-center font-medium text-neutral-500">
-    tailwind.config.js
-</div>
-
 <!--<script src="js/copy.js"></script>-->
-<script>hljs.highlightAll();</script>
+<script>
+  hljs.highlightAll();
+</script>
