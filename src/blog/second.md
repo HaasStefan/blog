@@ -1,0 +1,17 @@
+---
+title: Second
+author: Stefan Haas
+date: 2022-11-04
+image: https://images.indepth.dev/images/2021/03/Global-objects-in-Angular.jpeg
+imageAlt: Second Cover Image
+description: Short summary
+---
+
+The key idea behind microfrontends is to lazy load code at runtime, such
+that the Angular compiler does not need to know about the lazy loaded
+feature modules at runtime. This is especially useful, when multiple teams
+are working on a project and independent deployment is necessary for
+productivity.
+
+# hello
+## test

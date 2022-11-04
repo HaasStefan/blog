@@ -1,0 +1,12 @@
+<article class="rounded-lg shadow-2xl">
+  <img src="{{ image }}" alt="{{ imageAlt }}" class="rounded-t-lg" />
+  <div class="p-4 ">
+    <div class="flex gap-2 mb-2">
+      {%- for keyword in keywords -%}
+      <span class="text-blue-900 font-medium">#{{ keyword }}</span>
+      {% endfor %}
+    </div>
+    <h2 class="font-bold text-xl">{{ title }}</h2>
+    <p>{{ description }}</p>
+  </div>
+</article>

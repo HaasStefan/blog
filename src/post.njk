@@ -1,0 +1,45 @@
+---
+layout: 'base.njk'
+---
+
+<div class="sm:flex sm:justify-center mt-3">
+  <div class="max-w-screen-lg flex-auto p-2">
+    <h1 class="text-4xl font-bold mb-3">Angular Dynamic Microfrontends</h1>
+    <h2 class="text-xl text-neutral-600 font-bold mb-6">Using manifests and dynamic routing</h2>
+
+    <img
+      src="https://images.indepth.dev/images/2021/03/Global-objects-in-Angular.jpeg"
+      class="shadow-xl rounded-lg mb-3"
+      alt="cover-image"
+    />
+
+    <h2 class="text-2xl font-semibold mt-3 mb-2">Introduction</h2>
+    <p>
+      The key idea behind microfrontends is to lazy load code at runtime, such
+      that the Angular compiler does not need to know about the lazy loaded
+      feature modules at runtime. This is especially useful, when multiple teams
+      are working on a project and independent deployment is necessary for
+      productivity.
+      <br /><br />
+      Although this is the key idea, this won’t work like that out-of-the-box,
+      because Angular is not able to resolve the dependency at compile time.
+      Webpack can be used to do some magic things under the hood, such that lazy
+      loading works with the help of a module federation plugin.
+    </p>
+    {% include 'code.njk' %}
+
+    <h2 class="text-2xl font-semibold mt-3 mb-2">GitHub Repository</h2>
+    <p>
+      <div
+        class="repo-card shadow-xl rounded-md"
+        data-repo="HaasStefan/ngx-locutus"
+      ></div>
+    </p>
+  </div>
+</div>
+
+<!--
+<div class="card">
+    <h2 class="text-2xl font-semibold mt-3 mb-2">Other posts</h2>
+
+</div>-->

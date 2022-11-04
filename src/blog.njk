@@ -1,0 +1,23 @@
+---
+layout: "base.njk"
+---
+
+<div class="sm:flex sm:justify-center mt-3">
+    <div class="max-w-screen-lg p-2">
+    <h1 class="font-bold text-3xl mb-4 px-2 md:px-4">Recent articles</h1>
+    <ul class="flex-auto flex justify-between flex-row flex-wrap">
+    {%- for post in collections.post -%}
+    <li class="md:basis-1/2 p-2 md:p-4">
+      {% set title = post.data.title %} 
+      {% set description = post.data.description %} 
+      {% set author = post.data.author %} 
+      {% set date = post.data.date %} 
+      {% set image = post.data.image %} 
+      {% set imageAlt = post.data.imageAlt %} 
+      {% set keywords = post.data.keywords %} 
+      {% include 'blog-card.njk' %}
+    </li>
+    {% endfor %}
+  </ul>
+  </div>
+</div>

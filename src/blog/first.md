@@ -1,0 +1,18 @@
+---
+title: Angular Dynamic Microfrontends
+author: Stefan Haas
+date: 2022-11-03
+keywords: [ Angular, JavaScript ]
+image: https://images.indepth.dev/images/2021/03/Global-objects-in-Angular.jpeg
+imageAlt: first Cover Image
+description: In this article you will learn the key concept behind microfrontends and how to setup a good shell, that is able to adapt to changes eagerly...
+---
+
+The key idea behind microfrontends is to lazy load code at runtime, such
+that the Angular compiler does not need to know about the lazy loaded
+feature modules at runtime. This is especially useful, when multiple teams
+are working on a project and independent deployment is necessary for
+productivity.
+
+# hello
+## test

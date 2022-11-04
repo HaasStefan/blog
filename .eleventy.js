@@ -12,7 +12,7 @@ module.exports = function (eleventyConfig) {
     await esbuild.build({
       entryPoints: [
         "src/js/index.js",
-        "src/js/copy.js"
+        // "src/js/copy.js"
       ],
       bundle: true,
       sourcemap: false,
