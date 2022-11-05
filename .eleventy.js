@@ -12,7 +12,8 @@ module.exports = function (eleventyConfig) {
     await esbuild.build({
       entryPoints: [
         "src/js/index.js",
-        "src/js/paginator.js"
+        "src/js/paginator.js",
+        "src/js/typing.js"
       ],
       bundle: true,
       sourcemap: false,
@@ -34,12 +35,6 @@ module.exports = function (eleventyConfig) {
   });
 
   eleventyConfig.addFilter("debug", (content) => `<pre>${inspect(content)}</pre>`);
-
-  eleventyConfig.addFilter("log", (content) => {
-    console.log(content);
-    console.log("hello")
-    return content;
-  });
 
 
 
