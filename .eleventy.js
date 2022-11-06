@@ -13,7 +13,8 @@ module.exports = function (eleventyConfig) {
       entryPoints: [
         "src/js/index.js",
         "src/js/paginator.js",
-        "src/js/typing.js"
+        "src/js/typing.js",
+        "src/js/share.js"
       ],
       bundle: true,
       sourcemap: false,
@@ -58,6 +59,7 @@ module.exports = function (eleventyConfig) {
   // eleventyConfig.addPassthroughCopy("src/styles");
 
   return {
+    markdownTemplateEngine: 'njk',
     dir: {
       input: "src",
       output: "dist",

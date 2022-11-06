@@ -1,0 +1,183 @@
+---
+title: Dynamic Angular Microfrontends
+subtitle: Using manifests and dynamic routing
+author: Stefan Haas
+date: 2022-11-04
+keywords: [angular, module-federation, micro-frontends]
+image: https://miro.medium.com/max/1100/1*6UK-jZlcJX64sUkducPQLA.png
+imageAlt: webpack-module-federation-angular
+description: Microfrontends can be used to scale teams such that tehy can work more independently. In order to do so, effecient automation processes are needed, such that the shell is highly dynamic.
+layout: post
+---
+
+{% set subHeading = 'Introduction' %}
+{% include 'post-elements/sub-heading.njk' %}
+
+The key idea behind microfrontends is to lazy load code at runtime, such that the Angular compiler does not need to know about the lazy loaded feature modules at runtime. This is especially useful, when multiple teams are working on a project and independent deployment is necessary for productivity.
+
+{% set code %}await import('http://localhost:4200').then(m => m.ROUTES){% endset %}
+{% set lang = 'typescript' %}
+{% set caption = undefined %}
+{% include 'post-elements/code.njk' %}
+
+Although this is the key idea, this won’t work like that out-of-the-box, because Angular is not able to resolve the dependency at compile time. Webpack can be used to do some magic things under the hood, such that lazy loading works with the help of a module federation plugin.
+
+If you are not familiar with the basic concepts, I suggest reading this article first:
+<br>
+{% set link = 'https://levelup.gitconnected.com/your-first-angular-microfrontend-58950768a465' %}
+{% set linkText = 'Your First Angular Microfrontend' %}
+{% include 'post-elements/hyper-link.njk' %}
+<br>
+
+In the next part, I will assume that you already know how Module Federation can be used to statically lazy load microfrontends with hard-coded URLs. Obviously, having hard-coded URLs is not good, because we might want to implement some logic that decides which microfrontends should be loaded depending on user permissions, or just the deployment stage (dev, staging, prod).
+
+{% set subHeading = 'Guide' %}
+{% include 'post-elements/sub-heading.njk' %}
+
+I have created a monorepository containing two remotes (remote1, remote2) and one shell. Both remote1 and remote2 expose a routing configuration in the webpack config such that the routing configuration can be lazy loaded by the shell. The shell only contains a router-outlet that is used to display the remotes and also contains a navbar that has one router-link for each remote. This is basically all the necessary code for presentation. The tricky part is the dynamic routing which is based on a manifest file.
+
+The manifest file should at least implement the RemoteConfig from the @angular-architects/module-federation package and can extend more custom properties that are needed for your application. My manifest for example extends it like the following:
+
+{% set code %}import { Manifest, RemoteConfig } from "@angular-architects/module-federation";
+ 
+export type CustomRemoteConfig = RemoteConfig & {
+    exposedModule: string;
+    route: string;
+    routeConfigName: string;
+};
+
+export type CustomManifest = Manifest<CustomRemoteConfig>;
+{% endset %}
+{% set lang = 'typescript' %}
+{% set caption = 'manifest.ts' %}
+{% include 'post-elements/code.njk' %}
+
+
+{% set code %}{
+    "remote1": {
+        "remoteEntry": "http://localhost:4201/remoteEntry.js",
+        "exposedModule": "./Routes",
+        "route": "one",
+        "routeConfigName": "routes" 
+    },
+    "remote2": {
+        "remoteEntry": "http://localhost:4202/remoteEntry.js",
+        "exposedModule": "./Routes",
+        "route": "two",
+        "routeConfigName": "routes" 
+    }
+}   
+{% endset %}
+{% set lang = 'json' %}
+{% set caption = 'mf.manifest.json' %}
+{% include 'post-elements/code.njk' %}
+
+This manifest file should be stored in the assets folder and then we can make sure when bootstrapping that the remotes are loadable.
+
+{% set code %}import { loadManifest } from '@angular-architects/module-federation';
+
+loadManifest('/assets/mf.manifest.json')
+  .catch((err) => console.error(err))
+  .then(() => import('./bootstrap'))
+  .catch((err) => console.error(err)); 
+{% endset %}
+{% set lang = 'typescript' %}
+{% set caption = 'main.ts' %}
+{% include 'post-elements/code.njk' %}
+
+Now, the routing is the main problem because we cannot just code a static routing configuration. Instead, we can use a low-level dependency injection token from the angular-router such that we can use the useFactory property. It is important to provide an empty routing configuration and then we can access the 
+{% set code = 'ROUTES' %}
+{% include 'post-elements/inline-code.njk' %}
+injection token.
+
+{% set code %}bootstrapApplication(AppComponent, {
+  providers: [
+    importProvidersFrom(HttpClientModule),
+    provideRouter([]),
+    {
+      provide: ROUTES,
+      useFactory: () => createRoutes(),
+      multi: true,
+    },
+  ],
+}).catch((err) => console.error(err));
+{% endset %}
+{% set lang = 'typescript' %}
+{% set caption = 'bootstrap.ts' %}
+{% include 'post-elements/code.njk' %}
+
+The 
+{% set code = 'createRoutes' %}
+{% include 'post-elements/inline-code.njk' %}
+function is a utility function that returns a Routes object based on the manifest file. Basically, the manifest is iterated over and mapped to a routing configuration using the values of the manifest. In order to load the manifest, the 
+{% set code = 'getManifest' %}
+{% include 'post-elements/inline-code.njk' %}
+function can be used.
+
+{% set code %}import {
+  getManifest,
+  loadRemoteModule,
+} from '@angular-architects/module-federation';
+import { Routes } from '@angular/router';
+import { CustomManifest } from './custom-manifest';
+
+export function createRoutes(): Routes {
+  return Object.entries(getManifest<CustomManifest>()).map(([key, value]) => ({
+    path: value.route,
+    loadChildren: () =>
+      loadRemoteModule({
+        type: 'manifest',
+        remoteName: key,
+        exposedModule: value.exposedModule,
+      }).then((m) => m[value.routeConfigName]),
+  }));
+}
+{% endset %}
+{% set lang = 'typescript' %}
+{% set caption = 'routes-factory.ts' %}
+{% include 'post-elements/code.njk' %}
+
+And that is almost it. The only thing remaining is to dynamically add the router-links to the navbar. The component also uses the 
+{% set code = 'getManifest' %}
+{% include 'post-elements/inline-code.njk' %}
+function and in the template we can simply iterate over the entries in an 
+{% set code = 'ngFor' %}
+{% include 'post-elements/inline-code.njk' %}
+.
+
+{% set code %}<div class="navbar">
+  <ng-container *ngFor="let m of manifest | keyvalue">
+    <a [routerLink]="[m.value.route]">{{ m.value.route }}</a>
+  </ng-container>
+</div>
+{% endset %}
+{% set lang = 'html' %}
+{% set caption = 'navbar.component.html' %}
+{% include 'post-elements/code.njk' %}
+
+{% set subHeading = 'Result' %}
+{% include 'post-elements/sub-heading.njk' %}
+
+{% set image = 'https://miro.medium.com/max/1100/1*9cqGWBGg7grtSju_qIQS2w.png' %}
+{% set imageAlt = 'result' %} 
+{% set maxHeight = undefined %}
+{% set imageCaption = 'shell application' %}
+{% include 'post-elements/image.njk' %}
+{% set imageCaption = undefined %}
+
+
+{% set subHeading = 'Prospect' %}
+{% include 'post-elements/sub-heading.njk' %}
+
+This dynamic approach can be used for multiple interesting cases. The code is static, but the logic is contained in the manifest file and therefore a CI/CD pipeline could exchange the file depending on the stage. Otherwise, the manifest could be loaded entirely from a backend depending on the permissions of a logged in user. Or it could be used for A/B testing.
+
+
+{% set items = ['Deployment Stages', 'A/B Testing', 'Dashboards', 'Conditional Rendering based on permissions', 'Plugin Architecture'] %}
+{% include 'post-elements/list.njk' %}
+
+<br>
+
+In conclusion, this dynamic loading enables companies to have more control and scalability potentials for their microfrontend architectures.
+
+{% set repo = 'HaasStefan/dynamic-module-federation' %}
+{% include 'post-elements/repo.njk' %}

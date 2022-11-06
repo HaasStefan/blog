@@ -1,0 +1,65 @@
+---
+layout: "base.njk"
+---
+
+<div class="sm:flex sm:justify-center">
+  <article
+    class="max-w-screen-lg flex-auto p-4 text-lg leading-relaxed md:leading-loose"
+  >
+    <div class="links w-full">
+      <ul class="text-3xl w-full flex justify-end gap-3">
+        <li class="social-share facebook text-blue-700" id="share-fb">
+          <i class="fa-brands fa-facebook"></i>
+        </li>
+        <li class="social-share twitter text-blue-400" id="share-tw">
+          <i class="fa-brands fa-twitter"></i>
+        </li>
+        <li class="social-share linkedin text-blue-800" id="share-in">
+          <i class="fa-brands fa-linkedin"></i>
+        </li>
+      </ul>
+    </div>
+
+    <h1 class="text-4xl font-bold mt-3 mb-3" id="post-title">{{ title }}</h1>
+    <h2 class="text-xl text-neutral-600 font-bold mb-6">{{ subtitle }}</h2>
+
+    {% set image = image %} {% set imageAlt = imageAlt %} {% include
+    'post-elements/image.njk' %}
+
+    {{ content | safe }}
+
+    {% set subHeading = 'Thank you 🤗' %} {% include
+    'post-elements/sub-heading.njk' %}
+    <p>
+      Thank you for reading this article! I hope that you enjoyed it and could
+      learn something new and interesting. <br />
+      If you have any questions left, don't hessitate to contact me on {% set
+      link = 'https://twitter.com/StefanvHaas' %} {% set linkText = 'Twitter' %}
+      {% include 'post-elements/hyper-link.njk' %} or {% set link =
+      'https://www.linkedin.com/in/stefan-haas-686a921b4/' %} {% set linkText =
+      'LinkedIn' %} {% include 'post-elements/hyper-link.njk' %} to have a
+      discussion. <br /><br />
+
+      <b>Please consider supporting my blog.</b>
+
+      {% set image = '/assets/bmc.png' %} {% set imageAlt = 'buy-me-a-beer
+      qr-code' %} {% set maxHeight = 'max-h-64' %} {% include
+      'post-elements/image.njk' %}
+    </p>
+  </article>
+</div>
+
+<script
+  data-name="BMC-Widget"
+  data-cfasync="false"
+  src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js"
+  data-id="stefanhaas"
+  data-description="Support me on Buy me a coffee!"
+  data-message=""
+  data-color="#FF813F"
+  data-position="Right"
+  data-x_margin="18"
+  data-y_margin="18"
+></script>
+
+<script src="/js/share.js"></script>
