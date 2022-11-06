@@ -3,7 +3,6 @@ let container = document.getElementById("app-paginator");
 let hrefs = JSON.parse(
   '["' + container.getAttribute("hrefs").replaceAll(",", '","') + '"]'
 );
-console.log(hrefs)
 
 let current = +container.getAttribute("current");
 

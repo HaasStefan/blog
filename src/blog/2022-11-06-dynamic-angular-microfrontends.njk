@@ -1,19 +1,18 @@
 ---
 title: Dynamic Angular Microfrontends
 subtitle: Using manifests and dynamic routing
-author: Stefan Haas
 date: 2022-11-04
+description: The key idea behind microfrontends is to lazy load code at runtime, such that the Angular compiler does not need to know about the lazy loaded feature modules at runtime. This is especially useful, when multiple teams are working on a project and independent deployment is necessary for productivity.
 keywords: [angular, module-federation, micro-frontends]
 image: https://miro.medium.com/max/1100/1*6UK-jZlcJX64sUkducPQLA.png
 imageAlt: webpack-module-federation-angular
-description: Microfrontends can be used to scale teams such that tehy can work more independently. In order to do so, effecient automation processes are needed, such that the shell is highly dynamic.
 layout: post
 ---
 
 {% set subHeading = 'Introduction' %}
 {% include 'post-elements/sub-heading.njk' %}
 
-The key idea behind microfrontends is to lazy load code at runtime, such that the Angular compiler does not need to know about the lazy loaded feature modules at runtime. This is especially useful, when multiple teams are working on a project and independent deployment is necessary for productivity.
+{{description}}
 
 {% set code %}await import('http://localhost:4200').then(m => m.ROUTES){% endset %}
 {% set lang = 'typescript' %}
