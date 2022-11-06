@@ -2,6 +2,7 @@ const pluginRev = require("eleventy-plugin-rev");
 const eleventySass = require("eleventy-sass");
 const esbuild = require("esbuild");
 const inspect = require("util").inspect;
+const {DateTime} = require("luxon");
 
 module.exports = function (eleventyConfig) {
   eleventyConfig.addWatchTarget('./tailwind.config.js')
@@ -24,6 +25,10 @@ module.exports = function (eleventyConfig) {
 
   eleventyConfig.addFilter("date", (date) => {
     return new Intl.DateTimeFormat('en-US').format(new Date(date))
+  });
+
+  eleventyConfig.addFilter("postDate", (dateObj) => {
+    return DateTime.fromJSDate(dateObj).toLocaleString(DateTime.DATE_MED);
   });
 
   eleventyConfig.addFilter("threeOrMore", (n) => {
