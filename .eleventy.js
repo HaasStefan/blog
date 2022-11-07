@@ -19,7 +19,7 @@ module.exports = function (eleventyConfig) {
       ],
       bundle: true,
       sourcemap: false,
-      outdir: "dist/js",
+      outdir: "_site/js",
     });
   });
 
@@ -66,8 +66,7 @@ module.exports = function (eleventyConfig) {
   return {
     markdownTemplateEngine: 'njk',
     dir: {
-      input: "src",
-      output: "dist",
+      input: "src"
     },
   };
 };

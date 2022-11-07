@@ -4,11 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "clean": "rm -r dist",
+    "clean": "rm -r _site",
     "fonts": "cd src/_scripts && gulp && cd ../..",
     "serve": "eleventy --serve",
-    "tailwind": "npx tailwindcss -i src/css/tailwind.css -o dist/css/style.css --watch",
+    "tailwind": "npx tailwindcss -i src/css/tailwind.css -o _site/css/style.css --watch",
     "start": "npx concurrently \"npm run tailwind\" \"npm run serve\"",
+    "build": "npx tailwindcss -i src/css/tailwind.css -o _site/css/style.css && eleventy",
     "restart": "npm run clean && npm start"
   },
   "author": "",
