@@ -15,7 +15,8 @@ module.exports = function (eleventyConfig) {
         "src/js/index.js",
         "src/js/paginator.js",
         "src/js/typing.js",
-        "src/js/share.js"
+        "src/js/share.js",
+        "src/js/subscribe.js"
       ],
       bundle: true,
       sourcemap: false,
