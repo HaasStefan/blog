@@ -9,17 +9,19 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addWatchTarget('./css/tailwind.css')
   eleventyConfig.addWatchTarget("./src/js/");
 
+
   eleventyConfig.on("eleventy.before", async () => {
     await esbuild.build({
       entryPoints: [
         "src/js/index.js",
         "src/js/paginator.js",
         "src/js/typing.js",
-        "src/js/share.js"
+        "src/js/share.js",
+        "src/js/subscribe.js"
       ],
       bundle: true,
       sourcemap: false,
-      outdir: "_site/js",
+      outdir: "_site/js"
     });
   });
 
