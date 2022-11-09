@@ -1,6 +1,6 @@
 
 function subscribe() {
-    fetch('./functions/subscribe').then(res => {
+    fetch('./.netlify/functions/subscribe').then(res => {
         if (res.ok) {
             res.json().then(data => {
                 console.log(data); 
