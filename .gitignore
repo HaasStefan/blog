@@ -2,4 +2,4 @@
 /_site
 # Local Netlify folder
 .netlify
-local.env
+local_env
