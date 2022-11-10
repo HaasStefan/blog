@@ -9,7 +9,7 @@ function subscribe() {
     if (email && email.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)) {
 
         const indexEmail = document.getElementById('index-email');
-        indexEmail.remove();
+        if (indexEmail) indexEmail.remove();
         const footerEmail = document.getElementById('footer-email');
         footerEmail.remove();
 
