@@ -3,6 +3,8 @@ const eleventySass = require("eleventy-sass");
 const esbuild = require("esbuild");
 const inspect = require("util").inspect;
 const {DateTime} = require("luxon");
+const pluginRss = require("@11ty/eleventy-plugin-rss");
+
 
 module.exports = function (eleventyConfig) {
   eleventyConfig.addWatchTarget('./tailwind.config.js')
@@ -44,7 +46,7 @@ module.exports = function (eleventyConfig) {
 
   eleventyConfig.addFilter("debug", (content) => `<pre>${inspect(content)}</pre>`);
 
-
+  eleventyConfig.addPlugin(pluginRss);
 
   eleventyConfig.addPlugin(pluginRev);
   eleventyConfig.addPlugin(eleventySass, {
