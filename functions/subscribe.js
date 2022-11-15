@@ -14,12 +14,11 @@ exports.handler = async (event, context) => {
 
         if (!downloaded.toString().match(event.queryStringParameters.email)) {
             const emails = `${downloaded.toString()}${event.queryStringParameters.email}\r\n`;
-            console.log(emails);
-            blobClient.uploadStream(Readable.from([emails]));
-            console.log('csv uploaded!');
+            
+            let res = await blobClient.uploadStream(Readable.from([emails]));
+            console.log(JSON.stringify(res));
       
-            sendWelcome(event.queryStringParameters.email);
-            console.log('welcome email sent!');
+            await sendWelcome(event.queryStringParameters.email);
 
             return {
               statusCode: 200,
@@ -52,7 +51,7 @@ async function streamToBuffer(readableStream) {
     });
 }
 
-function sendWelcome(email) {
+async function sendWelcome(email) {
     var transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -68,11 +67,6 @@ function sendWelcome(email) {
         html: '<h2>Thank you!</h2><p> You subscribed to get notifications when a new blog post is published on <a href="https://ng-journal.com">ng-journal.com</a></p><p> If you want to cancel your subscription, please send an email to stefan.haas.privat@gmail.com</p>'
       };
       
-      transporter.sendMail(mailOptions, function(error, info){
-        if (error) {
-          console.log(error);
-        } else {
-          console.log('Email sent: ' + info.response);
-        }
-      });
+      let res = await transporter.sendMail(mailOptions);
+      console.log(JSON.stringify(res));
 }
