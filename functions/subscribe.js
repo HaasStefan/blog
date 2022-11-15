@@ -5,6 +5,7 @@ const nodemailer = require("nodemailer");
 
 exports.handler = async (event, context) => {
     try {
+        console.log(`new email request: ${event.queryStringParameters.email}`);
         const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
 
         const containerClient = await blobServiceClient.getContainerClient('subscribers');
@@ -14,18 +15,22 @@ exports.handler = async (event, context) => {
         if (!downloaded.toString().match(event.queryStringParameters.email)) {
             const emails = `${downloaded.toString()}${event.queryStringParameters.email}\r\n`;
             blobClient.uploadStream(Readable.from([emails]));
+            console.log('csv uploaded!');
       
             sendWelcome(event.queryStringParameters.email);
+            console.log('welcome email sent!');
 
             return {
               statusCode: 200,
             };
         }
-      
+
+        console.warn('400: Email already exists');
         return {
           statusCode: 400
         };
     } catch {
+      console.error('Internal error');
         return {
             statusCode: 500
         };
