@@ -11,9 +11,10 @@ exports.handler = async (event, context) => {
         const containerClient = await blobServiceClient.getContainerClient('subscribers');
         const blobClient = await containerClient.getBlockBlobClient('subscribers.csv');
         const downloaded = await streamToBuffer((await blobClient.download()).readableStreamBody);
-      
+
         if (!downloaded.toString().match(event.queryStringParameters.email)) {
             const emails = `${downloaded.toString()}${event.queryStringParameters.email}\r\n`;
+            console.log(emails);
             blobClient.uploadStream(Readable.from([emails]));
             console.log('csv uploaded!');
       
