@@ -1,0 +1,221 @@
+---
+title: Strongly Typed ngTemplateOutlet
+subtitle: Generics, ngTemplateContextGuard, Directives
+date: 2022-11-28
+tags: featured
+description: The ngTemplateOutlet can be used to project content into a component and therefore generic components such as tables commonly use them. But achieving strong typing is not trivial at all and needs some little TypeScript tricks.
+keywords: [angular, typescript, generics, ngTemplateOutlet, ngTemplateContextGuard]
+image: https://i.imgur.com/BEeBtt2.png
+imageAlt: ng-template-outlet-cover
+layout: post
+---
+
+{{description}}
+
+{% set subHeading = 'Loosely Typed Table' %}
+{% include 'post-elements/sub-heading.njk' %}
+
+<p>Below, you can see the code for a very basic generic table that leverages the 
+{% set code = 'ngTemplateOutlet' %}
+{% include 'post-elements/inline-code.njk' %} 
+to be reusable for various use-cases.
+</p>
+
+{% set code %}<div class="overflow-x-auto relative">
+  <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400 table-fixed">
+    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+      <tr>
+        <ng-container
+          *ngTemplateOutlet="tableHead"
+        ></ng-container>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let row of data" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+        <ng-container
+          *ngTemplateOutlet="tableRow; context: { $implicit: row }"
+        ></ng-container>
+      </tr>
+    </tbody>
+  </table>
+</div>
+{% endset %}
+{% set lang = 'html' %}
+{% set caption = 'table.component.html' %}
+{% include 'post-elements/code.njk' %}
+
+{% set code %}export class TableComponent {
+  @Input() data!: any;
+  @ContentChild('tableHead') tableHead!: TemplateRef<any>;
+  @ContentChild('tableRow') tableRow!: TemplateRef<any>;
+}
+{% endset %}
+{% set lang = 'typescript' %}
+{% set caption = 'table.component.ts' %}
+{% include 'post-elements/code.njk' %}
+
+<p>You might already have spotted a few code-smells. Such as the 
+{% set code = 'any' %}
+{% include 'post-elements/inline-code.njk' %} 
+types. Or the static string selector for the 
+{% set code = 'ContentChild' %}
+{% include 'post-elements/inline-code.njk' %}.
+</p>
+
+
+{% set subHeading = '1. Generics' %}
+{% include 'post-elements/sub-heading.njk' %}
+
+<p>First of all, let's remove the 
+{% set code = 'any' %}
+{% include 'post-elements/inline-code.njk' %} type of 
+{% set code = 'data' %}
+{% include 'post-elements/inline-code.njk' %}. In order to do so, we can use a generic type and make sure that the type is an array of objects, by using the following code. We know, that 
+{% set code = 'T' %}
+{% include 'post-elements/inline-code.njk' %} is an object and then the type of 
+{% set code = 'data' %}
+{% include 'post-elements/inline-code.njk' %} is an array of this type. TypeScript is pretty smart when it comes to infering types from generics, such that we do not have to do anything in addition. Just by assigning a value to 
+{% set code = 'data' %}
+{% include 'post-elements/inline-code.njk' %} will infer the type of 
+{% set code = 'T' %}
+{% include 'post-elements/inline-code.njk' %}.
+</p>
+
+{% set code %}export class TableComponent<T extends object> {
+  @Input() data!: T[];
+  @ContentChild('tableHead') tableHead!: TemplateRef<any>;
+  @ContentChild('tableRow') tableRow!: TemplateRef<any>;
+}
+{% endset %}
+{% set lang = 'typescript' %}
+{% set caption = 'table.component.ts' %}
+{% include 'post-elements/code.njk' %}
+
+
+{% set subHeading = '2. Directives' %}
+{% include 'post-elements/sub-heading.njk' %}
+
+<p>Another code smell is the static string in the 
+{% set code = 'ContentChild' %}
+{% include 'post-elements/inline-code.njk' %} which selects the child from the template. Obvisously, this is error prone, because a refactoring in the template will not refactor this string. Or just a simple typo in the string would not emit an immediate error.
+</p>
+<p>
+    But we can use a custom directive to select the child such that we get rid of the string selector. Therefore, I created a directive for each 
+    {% set code = 'ContentChild' %}
+    {% include 'post-elements/inline-code.njk' %}.
+</p>
+
+{% set code %}@Directive({
+  selector: 'ng-template[appTableHead]'
+})
+export class TableHeadDirective {
+  constructor() { }
+}
+{% endset %}
+{% set lang = 'typescript' %}
+{% set caption = 'table-head.directive.ts' %}
+{% include 'post-elements/code.njk' %}
+
+{% set code %}export class TableComponent<T extends object> {
+  @Input() data!: T[];
+  @ContentChild(TableHeadDirective, {read: TemplateRef}) tableHead!: TemplateRef<any>;
+  @ContentChild(TableRowDirective, {read: TemplateRef}) tableRow!: TemplateRef<any>;
+}  
+{% endset %}
+{% set lang = 'typescript' %}
+{% set caption = 'table.component.ts' %}
+{% include 'post-elements/code.njk' %}
+
+
+
+{% set subHeading = '3. ngTemplateContextGuard' %}
+{% include 'post-elements/sub-heading.njk' %}
+
+<p>
+Although, this code is already a lot cleaner, there is one major flaw present in the 
+{% set code = 'ng-template' %}
+{% include 'post-elements/inline-code.njk' %} in the component that is instantiating the table. The implicit variable passed through the 
+{% set code = 'ngTemplateOutletContext' %}
+{% include 'post-elements/inline-code.njk' %} is of type any, hence accessing properties inside the
+{% set code = 'ng-template' %}
+{% include 'post-elements/inline-code.njk' %} is not typed at all and therefore very error prone. This should be fixed, but that is definitely the trickiest part of this refactoring. 
+</p>
+
+{% set image = 'https://i.imgur.com/HqxGYZW.png' %}
+{% set imageAlt = 'row: any' %} 
+{% set maxHeight = undefined %}
+{% set imageCaption = 'row: any' %}
+{% include 'post-elements/image.njk' %}
+
+<p>
+    In order to infer the right type, we can use the directive that we already created and use a combination of generics and a static method called 
+    {% set code = 'ngTemplateContextGuard' %}
+{% include 'post-elements/inline-code.njk' %}. This method uses a type predicate with the 
+{% set code = 'is' %}
+{% include 'post-elements/inline-code.njk' %} keyword and is used to guard the type of the context.
+</p>
+
+{% set code %}interface Row<T extends object> {
+  $implicit: T
+}
+
+@Directive({
+  selector: 'ng-template[appTableRow]'
+})
+export class TableRowDirective<T extends object> {
+  @Input() appTableRow!: T[];
+
+  constructor() { }
+
+  static ngTemplateContextGuard<TContext extends object>(
+    directive: TableRowDirective<TContext>,
+    context: unknown
+  ): context is Row<TContext> {
+    return true;
+  }
+
+}
+{% endset %}
+{% set lang = 'typescript' %}
+{% set caption = 'table-row.directive.ts' %}
+{% include 'post-elements/code.njk' %}
+
+{% set code %}<app-table [data]="persons">
+  <ng-template [appTableHead]>
+    <td scope="col" class="py-3 px-6">Firstname</td>
+    <td scope="col" class="py-3 px-6">Lastname</td>
+    <td scope="col" class="py-3 px-6">Age</td>
+  </ng-template>
+  <ng-template [appTableRow]="persons" let-row>
+    <td class="py-4 px-6">{{ row.firstName }}</td>
+    <td class="py-4 px-6">{{ row.lastName }}</td>
+    <td class="py-4 px-6">{{ row.age }}</td>
+  </ng-template>
+</app-table>
+{% endset %}
+{% set lang = 'html' %}
+{% set caption = 'app.component.html' %}
+{% include 'post-elements/code.njk' %}
+
+<p>
+    By adding the input to the directive with the generic type, the directive is aware of the type that is passed to the table. This is neccesary to infer the type of the context variable using the static context guard that is used to assert a type using a type predicate.
+ Since the context guard is a static method it can not simply reuse the generic type of the directive and has to define its very own generic type.
+</p>
+
+
+
+{% set subHeading = 'Shout out to Joshua Morony' %}
+{% include 'post-elements/sub-heading.njk' %}
+
+<p>
+    This blog post is strongly inspired by Joshua Moronys really awesome YouTube video on this exact issue. I recommend checking it out:
+    
+    {% set link = 'https://www.youtube.com/watch?v=dau7kQMdH4A&ab_channel=JoshuaMorony' %}
+{% set linkText = 'Joshua Moronys YouTube video' %}
+{% include 'post-elements/hyper-link.njk' %}
+</p>
+
+{% set repo = 'HaasStefan/type-safe-ngtemplateoutlet' %}
+{% include 'post-elements/repo.njk' %}
+
+

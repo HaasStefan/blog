@@ -1,0 +1,71 @@
+---
+title: Nx Generators, TypeScript Compiler API, ASTs
+date: 2022-12-01
+description: This article demonstrates how Nx generators can be used to automate workflows in your Nx workspace. They can be used for simple task such as creating files, libraries, apps, etc. And they are even able to modify existing files whereas this is a non-trivial task when it comes to TypeScript files. In such case the code must be interpreted by traversing an abstract syntax tree. But more on this later in this article.
+keywords: [nx, nx-generators, typescript, ts-compiler-api, asts]
+image: https://i.imgur.com/NMKWNXM.png
+imageAlt: Article Cover Image
+tags: featured
+layout: post
+---
+
+{{description}}
+
+<p>
+    If you have used Nx before, then you have already used generators quite a lot. Maybe not consciously, but basically generating a library is done by an Nx generator. Even a simple 
+    {% set code = 'nx generate component xyz' %}
+    {% include 'post-elements/inline-code.njk' %}
+    is using a generator. Although, a very basic one wrapping the Angular CLI, but you can see that they are all over the place and therefore omnipresent.
+</p>
+
+{% set subHeading = 'Nx Plugins' %}
+{% include 'post-elements/sub-heading.njk' %}
+
+<p>
+Basically, Nx plugin is the umbrella term for a library consisting of two pieces. <b>Generators</b> and <b>Executors</b>. Hence, we can create an Nx plugin within a workspace and create multiple generators and/or executors within this plugin.
+</p>
+
+{% set code %}npm i -D @nrwl/nx-plugin
+{% endset %}
+{% set lang = 'txt' %}
+{% set caption = 'Installing @nrwl/nx-plugin' %}
+{% include 'post-elements/code.njk' %}
+
+{% set code %}nx g @nrwl/nx-plugin:plugin tools 
+{% endset %}
+{% set lang = 'txt' %}
+{% set caption = 'Generating an Nx plugin called "tools"' %}
+{% include 'post-elements/code.njk' %}
+
+
+{% set subHeading = 'Creating a Local Generator' %}
+{% include 'post-elements/sub-heading.njk' %}
+
+<p>
+Theoretically, you could use <b>Workspace Generators</b> which are not stored in an Nx plugin, but instead in the local 
+{% set code = '/tools/generators' %}
+{% include 'post-elements/inline-code.njk' %}
+ folder. But that has a few downsides, such as not being able to test the generators, neither is it possible to publish the generators to an npm registry. Therefore, they are a bit limiting and should only be used when creating generators that are only meant to be used in the context of the Nx workspace. For example, a suitable use-case would be a migration generator. By they way, a really great additional use-case for Nx generators are migration scripts when many people work inside the workspace, because the migration can be developed gradually in the form of generators, which are all executed at once in the end, such that a migration is not holding the team back.
+</p>
+
+{% set subHeading = 'Templating and EJS' %}
+{% include 'post-elements/sub-heading.njk' %}
+
+npm i -D  @nrwl/nx-plugin 
+<p>
+blabla
+</p>
+
+{% set subHeading = 'Abstract Syntax Trees (ASTs)' %}
+{% include 'post-elements/sub-heading.njk' %}
+
+<p>
+blabla
+</p>
+
+{% set subHeading = 'TypeScript Compiler API' %}
+{% include 'post-elements/sub-heading.njk' %}
+
+<p>
+blabla
+</p>
