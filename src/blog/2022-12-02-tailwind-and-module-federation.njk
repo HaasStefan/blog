@@ -1,0 +1,178 @@
+---
+title: Tailwind CSS + Module Federation
+subtitle: How to use Tailwind CSS in an Angular Microfrontend
+date: 2022-12-02
+tags: featured
+description: Tailwind CSS is a modern CSS utility library used by thousands of people. It allows to use predefined css classes directly inside the html such that creating custom css classes is rarely needed. But setting it up for a microfrontend is a bit tricky. Anyway, don't worry, in this article you will learn how to setup an Nx workspace with module federation and use Tailwind CSS in the microfrontend.
+keywords: [modulefederation, tailwind, tailwindcss, angular, microfrontends, nx]
+image: https://i.imgur.com/kYMTQ7A.png
+imageAlt: tailwind-module-federation-cover
+layout: post
+---
+
+<p>
+    {{description}}
+</p>
+
+{% set subHeading = 'Tailwind in a Nutshell' %}
+{% include 'post-elements/sub-heading.njk' %}
+
+<p>
+    Tailwind CSS is all about making styling web applications easier. 
+    Instead of having to come up with CSS class names, which actually is a really difficult task, you can use Tailwind CSS and add lots of predefined utility classes to the class attribute inside your html templates.
+    Although, it is often debated if Tailwind is counter-productive because it clutters the html template, I made the personal experience that I was a lot faster using it. The biggest advantage is that you do not have to think about good telling css class names and that is a huge win for Tailwind.
+</p>
+
+{% set image = 'https://i.imgur.com/sQPE0vS.png' %}
+{% set imageAlt = 'typical tailwind classes' %} 
+{% set maxHeight = undefined %}
+{% set imageCaption = 'Typical Tailwind classes' %}
+{% include 'post-elements/image.njk' %}
+
+
+{% set subHeading = 'Setting up Module Federation' %}
+{% include 'post-elements/sub-heading.njk' %}
+
+<p> In case you are not so familiarwith microfrontends and module federation yet, I would recommend reading this article I wrote a while a go which is tailored for module federation beginners.
+<br>
+{% set link = 'https://medium.com/gitconnected/your-first-angular-microfrontend-58950768a465' %}
+{% set linkText = 'Getting started with Module Federation' %}
+{% include 'post-elements/hyper-link.njk' %}
+<br>
+In this article I have created an Nx workspace containing two applications (shell, remote) with the standalone API. Hence, a routing configuration is exposed by the microfrontend instead of the usual ngModule. But that is just because routes can be officialy lazy loaded since Angular 15.
+
+</p>
+
+{% set subHeading = 'Adding Tailwind' %}
+{% include 'post-elements/sub-heading.njk' %}
+
+<p>
+First of all, we need to install Tailwind. <br>
+Running the following command will install the necessary packages (
+    {% set code = 'tailwindcss' %}
+{% include 'post-elements/inline-code.njk' %},
+{% set code = 'postcss' %}
+{% include 'post-elements/inline-code.njk' %},
+{% set code = 'autoprefixer' %}
+{% include 'post-elements/inline-code.njk' %}). 
+
+{% set code %}npm install tailwindcss
+{% endset %}
+{% set lang = 'plain' %}
+{% set caption = undefined %}
+{% include 'post-elements/code.njk' %}
+
+Afterwards we can setup Tailwind for each application by running the following command:
+
+{% set code %}npx nx generate @nrwl/angular:setup-tailwind [remoteName]
+{% endset %}
+{% set lang = 'plain' %}
+{% set caption = 'Replace [remoteName] with the name of your remote app' %}
+{% include 'post-elements/code.njk' %}
+
+This generator adds a the 
+{% set code = 'tailwind.config.js' %}
+{% include 'post-elements/inline-code.njk' %} file to your project. 
+You can leave it as is if you do not have any custom tailwind configurations.
+It also generated the tailwind imports in your global stylesheet file. Usually that is okay, when you are running a monolith, but since the global stylesheet of a microfrontend is not exposed, we have to find a solution to include the tailwind styles in the exposed chunk of the microfrontend.
+
+{% set code %}@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* You can add global styles to this file, and also import other style files */
+
+{% endset %}
+{% set lang = 'css' %}
+{% set caption = 'styles.scss' %}
+{% include 'post-elements/code.njk' %}
+
+Therefore, you can remove these imports from the global stylesheet for now.
+
+</p>
+
+{% set subHeading = 'Proxy Pattern' %}
+{% include 'post-elements/sub-heading.njk' %}
+
+<p>
+In order to also share the tailwind styles during module federation, we have to include tailwind imports in the styles of each component that the microfrontend uses. Well yes, but there is a better way where we can just import tailwind once.
+We can use a 
+{% set code = 'ProxyComponent' %}
+{% include 'post-elements/inline-code.njk' %} that is simply wrapping the entire microfrontend that usually would be exposed in the webpack config and expose this proxy instead. 
+Now we can put the tailwind imports into the styles of this proxy component. 
+The last thing that has to be done is to set the 
+{% set code = 'ViewEncapsulation' %}
+{% include 'post-elements/inline-code.njk' %} of the proxy component to 
+{% set code = 'None' %}
+{% include 'post-elements/inline-code.njk' %}. This is because usually Angular would encapsulate all styles by default by obfuscating css classes. This is prevented and therefore the styles of this component act like a global stylesheet for all the child components and other components without view encapsulation. So be aware, that you should only put the tailwind imports in there to be on the safe side.
+
+
+{% set image = 'https://i.imgur.com/JjjDumB.png' %}
+{% set imageAlt = 'proxy component' %} 
+{% set maxHeight = undefined %}
+{% set imageCaption = 'Proxy Component' %}
+{% include 'post-elements/image.njk' %}
+
+{% set code %}@tailwind base;
+@tailwind components;
+@tailwind utilities;
+{% endset %}
+{% set lang = 'css' %}
+{% set caption = 'proxy.component.scss' %}
+{% include 'post-elements/code.njk' %}
+
+{% set code %}<router-outlet></router-outlet>
+{% endset %}
+{% set lang = 'html' %}
+{% set caption = 'proxy.component.html' %}
+{% include 'post-elements/code.njk' %}
+
+{% set code %}import { Component, ViewEncapsulation } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterOutlet } from '@angular/router';
+
+@Component({
+  selector: 'tailwind-microfrontends-proxy',
+  standalone: true,
+  imports: [CommonModule, RouterOutlet],
+  templateUrl: './proxy.component.html',
+  styleUrls: ['./proxy.component.scss'],
+  encapsulation: ViewEncapsulation.None
+})
+export class ProxyComponent {}
+{% endset %}
+{% set lang = 'typescript' %}
+{% set caption = 'proxy.component.ts' %}
+{% include 'post-elements/code.njk' %}
+
+{% set code %}import { Route } from '@angular/router';
+
+export const routes: Route[] = [
+  {
+    path: '',
+    loadComponent: async () =>
+      (await import('./proxy.component')).ProxyComponent,
+    loadChildren: async () =>
+      (await import('@tailwind-microfrontends/remote-lib')).routes,
+  },
+];
+{% endset %}
+{% set lang = 'typescript' %}
+{% set caption = 'proxy.routes.ts' %}
+{% include 'post-elements/code.njk' %}
+
+</p>
+
+{% set subHeading = 'Result' %}
+{% include 'post-elements/sub-heading.njk' %}
+
+{% set image = 'https://i.imgur.com/dD8iBob.png' %}
+{% set imageAlt = 'result' %} 
+{% set maxHeight = undefined %}
+{% set imageCaption = undefined %}
+{% include 'post-elements/image.njk' %}
+
+
+{% set repo = 'HaasStefan/tailwind-microfrontends' %}
+{% include 'post-elements/repo.njk' %}
+
