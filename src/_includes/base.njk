@@ -25,11 +25,21 @@
 
     <script src="https://tarptaeya.github.io/repo-card/repo-card.js"></script>
 
-    <meta property='og:title' id="og-title" content='{{title}}'/>
-    <meta property='og:image' id="og-image" content='{{image}}'/>
-    <meta property='og:description' id="og-description" content='{{description}}'/>
-    <meta property='og:url' id="og-url" content='{{ site.url + page.url | url}}' />
-
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:site" content="@StefanvHaas" />
+    <meta name="twitter:creator" content="@StefanvHaas" />
+    <meta property="og:title" id="og-title" content="{{ title }}" />
+    <meta property="og:image" id="og-image" content="{{ image }}" />
+    <meta
+      property="og:description"
+      id="og-description"
+      content="{{ description }}"
+    />
+    <meta
+      property="og:url"
+      id="og-url"
+      content="{{ site.url + page.url | url }}"
+    />
   </head>
   <body class="bg-stone-100 min-h-screen">
     <div class="min-h-screen flex items-stretch flex-col">
