@@ -3,7 +3,7 @@ title: NgRx Component Store meets Facade Pattern
 subtitle: Abstracting State Management with the Facade Pattern
 date: 2022-12-04
 tags: featured
-description: blablabla
+description: On the one hand, the Component Store is a really fancy library for simple state management. But on the other hand, tightly coupling state management into an application is always a bad idea. The reason for that being, that the need for state management is changing during the lifetime of an application. In the beginning it is often unnecessary to invest too much time into a fully fledged state management library when a service-based state management would be enough. But suddenly after a few months working with stateful services, the need for a fully fledged state management library arises. But what now? Just throw everything out of the window?
 keywords: [angular, ngrx, ngrx-component-store, facade, rxjs]
 image: https://i.imgur.com/IkzVhVS.png
 imageAlt: ngrx-component-store-meets-facade-pattern-cover
@@ -17,11 +17,170 @@ layout: post
 {% set subHeading = 'Facade Pattern' %}
 {% include 'post-elements/sub-heading.njk' %}
 
+<p>
+    In order remove the tight coupling between your application and state management, wether it is an NgRx store or stateful services, the <b>Facade Pattern</b> can be applied.
+
+</p>
+
+{% set image = 'https://i.imgur.com/bfrohJ6.png' %}
+{% set imageAlt = 'result' %} 
+{% set maxHeight = undefined %}
+{% set imageCaption = 'Facade Pattern' %}
+{% include 'post-elements/image.njk' %}
+
+
+
+
 {% set subHeading = 'State Model vs View Model' %}
 {% include 'post-elements/sub-heading.njk' %}
 
+{% set image = 'https://i.imgur.com/vKQF4zO.png' %}
+{% set imageAlt = 'result' %} 
+{% set maxHeight = undefined %}
+{% set imageCaption = 'View Model [Left], State Model [Right]' %}
+{% include 'post-elements/image.njk' %}
+
+
 {% set subHeading = 'Component Store' %}
 {% include 'post-elements/sub-heading.njk' %}
+
+{% set subSubHeading = 'I. State' %}
+{% include 'post-elements/sub-sub-heading.njk' %}
+
+{% set subSubHeading = 'II. Selector' %}
+{% include 'post-elements/sub-sub-heading.njk' %}
+
+{% set subSubHeading = 'III. Updater' %}
+{% include 'post-elements/sub-sub-heading.njk' %}
+
+{% set subSubHeading = 'IV. Effect' %}
+{% include 'post-elements/sub-sub-heading.njk' %}
+
+{% set subHeading = 'Example' %}
+{% include 'post-elements/sub-heading.njk' %}
+<p>
+    In the example below, you can see a facade that injects three data services to retrieve users and aggregates their favourite pizza and song. It makes use of the segregation between state model and view model and implements custom RxJS operators to map from state model to view model.
+    Note, that you can find the entire application in the GitHub repository attached down below.
+</p>
+
+{% set code %}import { Injectable } from '@angular/core';
+import { ComponentStore, tapResponse } from '@ngrx/component-store';
+import {
+  combineLatest,
+  combineLatestAll,
+  filter,
+  map,
+  mergeMap,
+  Observable,
+  of,
+  pipe,
+  switchMap,
+  throwError,
+} from 'rxjs';
+import { User } from '../entities/view-models/user.model';
+import { User as UserStateModel } from '../entities/state-models/user.model';
+import { PizzaService } from '../infrastructure/pizza.service';
+import { SongService } from '../infrastructure/song.service';
+import { UserService } from '../infrastructure/user.service';
+
+interface State {
+  selectedUser: number;
+  users: UserStateModel[];
+}
+
+@Injectable({
+  providedIn: 'root',
+})
+export class FacadeService extends ComponentStore<State> {
+  readonly selectedUser$ = this.select(({ users, selectedUser }) =>
+    users.find((u) => u.id === selectedUser)
+  ).pipe(
+    filter(user => !!user),
+    switchMap((user) =>
+      user ? of(user).pipe(this.mapOneToViewModel()) : of(user)
+    ),
+  );
+
+  readonly users$ = this.select(({ users }) => users).pipe(
+    this.mapArrayToViewModel()
+  );
+
+  readonly selectUser = this.updater((state: State, user: User) => ({
+    ...state,
+    selectedUser: user.id,
+  }));
+
+  readonly loadUsers = this.effect<void>(
+    pipe(
+      switchMap(() =>
+        this.userService
+          .getAll()
+          .pipe(
+            tapResponse((users) => this.patchState({ users }), console.error)
+          )
+      )
+    )
+  );
+
+  constructor(
+    private readonly userService: UserService,
+    private readonly pizzaService: PizzaService,
+    private readonly songService: SongService
+  ) {
+    super({
+      selectedUser: -1,
+      users: [],
+    });
+  }
+
+  private mapArrayToViewModel(): (
+    source$: Observable<UserStateModel[]>
+  ) => Observable<User[]> {
+    return (source$) =>
+      source$.pipe(
+        switchMap((users) =>
+          users && users.length > 0
+            ? of(users).pipe(
+                mergeMap((users) => users.map((u) => this.getUser(u))),
+                combineLatestAll()
+              )
+            : of([])
+        )
+      );
+  }
+
+  private mapOneToViewModel(): (
+    source$: Observable<UserStateModel>
+  ) => Observable<User> {
+    return (source$) => source$.pipe(switchMap((user) => this.getUser(user)));
+  }
+
+  private getUser(user: UserStateModel | null): Observable<User> {
+    if (!user) return throwError(() => new Error('user not found'));
+
+    return combineLatest({
+      pizza: this.pizzaService.get(user.favourites.pizzaId),
+      song: this.songService.get(user.favourites.songId),
+    }).pipe(
+      map(
+        ({ pizza, song }) =>
+          ({
+            id: user.id,
+            email: user.email,
+            favourites: {
+              pizza,
+              song,
+            },
+          } as User)
+      )
+    );
+  }
+}
+
+{% endset %}
+{% set lang = 'typescript' %}
+{% set caption = 'facade.service.ts' %}
+{% include 'post-elements/code.njk' %}
 
 {% set repo = 'HaasStefan/facade-pattern' %}
 {% include 'post-elements/repo.njk' %}
