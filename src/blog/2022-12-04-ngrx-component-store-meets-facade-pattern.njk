@@ -18,8 +18,10 @@ layout: post
 {% include 'post-elements/sub-heading.njk' %}
 
 <p>
-    In order remove the tight coupling between your application and state management, wether it is an NgRx store or stateful services, the <b>Facade Pattern</b> can be applied.
-
+  In order remove the tight coupling between your application and state management, wether it is an NgRx store or stateful services, the <b>Facade Pattern</b> can be applied.
+  It basically hides away dependencies to data services and exposes one service such that changes in the data services do not directly affect the components that depend on it because it uses the facade instead. Hence the only place the change is affecting a refactoring is the facade.
+  Therefore it is a general best practice and is also often found in other use cases than state management. But in the Angular world it is especially useful for state management. Just imagine that you would write a big application and did not start with an NgRx store, but recently the need for it did arise and now you have to refactor your current service-based statemanagement to use the NgRx store.
+  Usually, this would ne overwhelming because you would have to change all the components that used the services before and replace it with some code for NgRx. Especially in that case, a facade is a tremendous improvement, because the change from service-based to NgRx would only affect the facade. 
 </p>
 
 {% set image = 'https://i.imgur.com/bfrohJ6.png' %}
@@ -28,17 +30,44 @@ layout: post
 {% set imageCaption = 'Facade Pattern' %}
 {% include 'post-elements/image.njk' %}
 
-
+<p>
+  Therefore, facades are the key to state management in an agile project. In an agile project, many many requirements are not known right ahead in the beginning of a project, hence the need for an NgRx store could spontaneously arise at everytime. In order to not over-engineer the application and use NgRx directly, even if it may not be needed, a facade can hide the state management and do the damage control in case the state management technology would be replaced.
+</p>
 
 
 {% set subHeading = 'State Model vs View Model' %}
 {% include 'post-elements/sub-heading.njk' %}
+
+<p>
+  Working with <b>immutables</b> is a general best practice and is used heavily in NgRx because it is heavily inspired by functional programming. This means, that a mutation on an object is not allowed. 
+  So, instead of updating a property of an object directly, the entirely new object must be created and the old values will be copied into it. 
+  This is pretty straight forward for primitive typed properties, but copying deeply nested objects is difficult and a hir on performance. If done incorrectly, such that a deep clone is done insufficiently, the outcome could be terrifying because mutations on such nested objects might happen outside of the store and therefore violate the immutability in a non-obvious way which is really hard to troubleshoot.
+  Hence, it is important to manage such deeply nested objects carefully. And the best way to do so is to not have deeply nested objects at all.
+</p>
+<p>
+  The solution is to normalize such objects, like it is done in relational databases. 
+  This means, that the nested objects would be stored seperately and have a primary key (unique id) and the original object will point to this formerly-nested object by referencing its primary key.
+  This normalized version used for storing the data is called <b>State Model</b>, whereas the nested object, which would be used inside the components is called <b>View Model</b>. 
+</p>
 
 {% set image = 'https://i.imgur.com/vKQF4zO.png' %}
 {% set imageAlt = 'result' %} 
 {% set maxHeight = undefined %}
 {% set imageCaption = 'View Model [Left], State Model [Right]' %}
 {% include 'post-elements/image.njk' %}
+
+<p>
+  In consequence, we implement both entity models, but use the state model for storing the data in an immutable store and then transform it into a view model when requested by a component.
+  You can either use an open-source library for normalization like <b>normalizr</b> or aggregate the data on your own.
+  Either way, putting in the work of having both models pays off whenever you are dealing with nested objects in an immutable store. 
+</p>
+
+{% set image = 'https://i.imgur.com/AIocjEW.png' %}
+{% set imageAlt = 'result' %} 
+{% set maxHeight = undefined %}
+{% set imageCaption = 'Normalization' %}
+{% include 'post-elements/image.njk' %}
+
 
 
 {% set subHeading = 'Component Store' %}
