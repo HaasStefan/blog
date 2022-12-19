@@ -1,0 +1,282 @@
+---
+title: The Enterprise Monorepo Angular Patterns
+subtitle: Leverage the full potential of Nx with Eslint rules and the Enterprise Monorepo Patterns
+date: 2022-12-19
+tags: featured
+description: Nx is a commonly used tool for monorepositories and is the top dog in the Angular community when it comes to building enterprise applications. Nx has many awesome features that help with scaling enterprise applications, but the greatest feature of them all is the nx/enforce-module-boundaries linting rule (also often referred to as access restrictions). When set up correctly, it allows for enforcing architecture rules and for automated validation with the linter. But these access restrictions assume a very specific structuring, which follows fine-grained horizontal and vertical slicing. 
+keywords: [angular, nx, eslint, ddd, enterprise-monorepo-patterns, access-restrictions, enforce-module-boundaries]
+image: https://i.imgur.com/TbEGhZs.png
+imageAlt:  cover-image
+layout: post
+---
+
+<p>
+    {{description}}
+</p>
+
+{% set subHeading = 'Horizontal Slicing' %}
+{% include 'post-elements/sub-heading.njk' %}
+
+<p>
+    Horizontal Slicing is obviously very important in every enterprise application, independent of the enterprise monorepo patterns.
+    It is just about slicing a big monolith into sub-systems, often referred to as domains or subdomains, especially if you follow principles of Domain Driven Design, such as Strategic Design, which gives some very useful tools to find a good horizontal slicing.
+    In the case of an insurance CRM, which manages claims, contracts, customers, complaints and notifications, we would split this system into said subdomains. 
+</p>
+
+{% set image = 'https://i.imgur.com/BKaIqNy.png' %}
+{% set imageAlt = 'result' %} 
+{% set maxHeight = undefined %}
+{% set imageCaption = undefined %}
+{% include 'post-elements/image.njk' %}
+
+
+{% set subHeading = 'Vertical Slicing' %}
+{% include 'post-elements/sub-heading.njk' %}
+
+<p>
+  Now, considering the before identified domains, we can slice the application even further on a vertical level. 
+  We can slice each domain into libraries marked as either <b>Feature, UI, Data-Access, Util, API</b>. 
+  That means, that each domain is just a directory inside an Nx monorepo and contains many libraries which have a clear separation. 
+  On the one hand this vertical separation is great, because it gives a good structure and tells you exactly where to put what. 
+  But that is by far not all it has to offer, because the slicing also allows for setting up access restrictions such that we can control the dependency flow.
+  For example, a UI library can not depend on a Feature or API library.
+</p>
+
+{% set image = 'https://i.imgur.com/vkCJ2YQ.png' %}
+{% set imageAlt = 'result' %} 
+{% set maxHeight = undefined %}
+{% set imageCaption = undefined %}
+{% include 'post-elements/image.njk' %}
+
+<p>
+  But hold on a second. What do these library types actually mean? 
+  <br>
+  - <b>Feature</b> contains smart components. <br>
+  - <b>UI</b> contains dumb components. <br>
+  - <b>Data Access</b> contains entities, logic, services, state management. <br>
+  - <b>Util</b> contains helper functions. <br>
+</p>
+
+<br>
+
+<p>
+  Splitting these things up into distinct libraries makes a lot of sense, when using Nx, because each library can be marked with custom tags in the 
+  {% set code = 'project.json' %}
+  {% include 'post-elements/inline-code.njk' %} and in combination with linting rules, we can specify dependency rules based on these tags. 
+  That way, it is possible to make a rule that states that a UI library is not allowed to depend on a Feature library.
+</p>
+
+<br>
+
+
+<p>
+  Another important library type is the <b>API</b>, which does not contain anything and instead only acts a proxy that exposes just a few things. 
+  Usually, a domain would not be allowed to access libraries from another domain, but with the API, we can open up a very small door that exposes the minimum, such that the domains have little dependencies on each other. 
+  An alternative solution to sharing dependencies would be to use a <b>Shared Kernel</b>, which is its own domain, but with the special rule, that every domain is allowed to depend on the shared domain. 
+  Although, the shared domain could be used to share dependencies, I advise using APIs because if the shared domain is growing bigger and bigger, the point of the enterprise monorepo patterns are defeated.
+  
+</p>
+
+
+{% set subHeading = 'Eslint Rules' %}
+{% include 'post-elements/sub-heading.njk' %}
+
+<p>
+  With the tags in the 
+  {% set code = 'project.json' %}
+  {% include 'post-elements/inline-code.njk' %} set up, we now have to apply dependency constraints in the 
+  {% set code = 'eslintrc.json' %}
+  {% include 'post-elements/inline-code.njk' %}. Inside the 
+  {% set code = '@nrwl/nx/enforce-module-boundaries' %}
+  {% include 'post-elements/inline-code.njk' %} you just have to add a rule for each tag. 
+  Therefore for each tag you have to create such an entry:
+</p>
+
+{% set code %}[...]
+{
+  "sourceTag": "type:ui",
+  "onlyDependOnLibsWithTags": [
+    "type:data-access",
+    "type:util"
+  ]
+},
+[...]
+{% endset %}
+{% set lang = 'json' %}
+{% set caption = undefined %}
+{% include 'post-elements/code.njk' %}
+
+<p>
+  All the rules combined in the Insurance Portal example look like the following. Also, have a closer look on the rules for
+  {% set code = '"domain:contract"' %}
+  {% include 'post-elements/inline-code.njk' %} because it extends the common pattern and in addition access to certain API libraries.
+</p>
+
+
+{% set code %}"@nrwl/nx/enforce-module-boundaries": [
+  "error",
+  {
+    "enforceBuildableLibDependency": true,
+    "allow": [],
+    "depConstraints": [
+      {
+        "sourceTag": "type:app",
+        "onlyDependOnLibsWithTags": [
+          "type:api",
+          "type:feature",
+          "type:ui",
+          "type:data-access",
+          "type:util"
+        ]
+      },
+      {
+        "sourceTag": "type:api",
+        "onlyDependOnLibsWithTags": [
+          "type:ui",
+          "type:data-access",
+          "type:util"
+        ]
+      },
+      {
+        "sourceTag": "type:feature",
+        "onlyDependOnLibsWithTags": [
+          "type:ui",
+          "type:data-access",
+          "type:util",
+          "type:api"
+        ]
+      },
+      {
+        "sourceTag": "type:ui",
+        "onlyDependOnLibsWithTags": [
+          "type:data-access",
+          "type:util"
+        ]
+      },
+      {
+        "sourceTag": "type:data-access",
+        "onlyDependOnLibsWithTags": [
+          "type:util",
+        ]
+      },
+      {
+        "sourceTag": "domain:shared",
+        "onlyDependOnLibsWithTags": ["domain:shared"]
+      },
+      {
+        "sourceTag": "domain:claim",
+        "onlyDependOnLibsWithTags": ["domain:claim", "domain:shared"]
+      },
+      {
+        "sourceTag": "domain:contract",
+        "onlyDependOnLibsWithTags": [
+          "domain:contract",
+          "domain:shared",
+          "domain:claim/api-contract",
+          "domain:complaint/api-contract"
+        ]
+      },
+      {
+        "sourceTag": "domain:notification",
+        "onlyDependOnLibsWithTags": [
+          "domain:notification",
+          "domain:shared"
+        ]
+      },
+      {
+        "sourceTag": "domain:complaint",
+        "onlyDependOnLibsWithTags": [
+          "domain:complaint",
+          "domain:shared"
+        ]
+      },
+      {
+        "sourceTag": "domain:customer",
+        "onlyDependOnLibsWithTags": [
+          "domain:customer",
+          "domain:shared",
+          "domain:notification/api-customer"
+        ]
+      }
+    ]
+  }
+]{% endset %}
+{% set lang = 'json' %}
+{% set caption = 'eslintrc.json' %}
+{% include 'post-elements/code.njk' %}
+
+<p>
+  If you now violate one fo the dependency constraints you will get an immediate linting error. 
+  Both from your IDE, and through an automated 
+  {% set code = 'nx lint' %}
+  {% include 'post-elements/inline-code.njk' %}.
+</p>
+
+
+{% set image = 'https://i.imgur.com/Z3ZSpjh.png' %}
+{% set imageAlt = 'result' %} 
+{% set maxHeight = undefined %}
+{% set imageCaption = 'linting error inside UI library' %}
+{% include 'post-elements/image.njk' %}
+
+
+{% set subHeading = 'Nx Graph' %}
+{% include 'post-elements/sub-heading.njk' %}
+
+<p>
+    Another really awesome tool of Nx is the interactive Nx Graph, which shows you all the dependencies very intuitively. 
+    Grouping by folder, we can get a good image of the current architecture of our application and we are even able to focus specific libraries.
+    With Nx 15.3.0, we can now even visualize the <b>Task Graph</b>, which might be of big interest to you, if you use buildable libraries and a remote Nx cache. 
+
+    Read more on 
+    {% set link = 'https://nx.dev/more-concepts/incremental-builds' %}
+    {% set linkText = 'Incremental Builds' %}
+    {% include 'post-elements/hyper-link.njk' %}.
+
+</p>
+
+{% set image = 'https://i.imgur.com/H0wQFux.png' %}
+{% set imageAlt = 'result' %} 
+{% set maxHeight = undefined %}
+{% set imageCaption = 'nx graph' %}
+{% include 'post-elements/image.njk' %}
+
+
+{% set subHeading = 'Honorable Mentions' %}
+{% include 'post-elements/sub-heading.njk' %}
+
+{% set subSubHeading = 'I. @angular-architects/ddd' %}
+{% include 'post-elements/sub-sub-heading.njk' %}
+
+<p>
+    The 
+    {% set link = 'https://www.npmjs.com/package/@angular-architects/ddd' %}
+    {% set linkText = '@angular-architects/ddd' %}
+    {% include 'post-elements/hyper-link.njk' %}
+    package is a super popular nx-plugin that automates the initialization of the eslint rules and generates project tags and linting rule adaptions on the fly. 
+    It even brings a lot more to the table by applying best practices from DDD, such as separating the data-acess (or domain-logic) layer into more fine-grained layers, implementing the facade pattern.
+</p>
+
+
+{% set subSubHeading = 'II. Enterprise Monorepo Angular Patterns' %}
+{% include 'post-elements/sub-sub-heading.njk' %}
+
+<p>
+    Originally, the Enterprise Monorepo Angular Patterns had been introduced in this 
+    {% set link = 'https://go.nrwl.io/angular-enterprise-monorepo-patterns-new-book' %}
+    {% set linkText = 'book' %}
+    {% include 'post-elements/hyper-link.njk' %}, by Nitin Vericherla and Victor Savkin.
+</p>
+
+{% set subHeading = 'Conclusion' %}
+{% include 'post-elements/sub-heading.njk' %}
+<p>
+  In conclusion, the <b>Enterprise Monorepo Angular Patterns</b> are well-established and a best practice for long-lived enterprise applications. 
+  That's because it enables highly independent sub-systems (or domains) and enforces linting rules that lint for architectural violations. 
+  All in all, when set up correctly, it enforces architecture rules and promises a good separation that is hard to break. 
+  The next logical step would be to set up a remote Nx cache and make the libraries buildable, such that the build performance is drastically increased. 
+  Stay tuned for further reads on this topic!
+</p>
+
+{% set repo = 'HaasStefan/nx-giant' %}
+{% include 'post-elements/repo.njk' %}
