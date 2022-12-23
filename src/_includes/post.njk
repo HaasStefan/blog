@@ -26,6 +26,8 @@ layout: "base.njk"
     {% set image = image %} {% set imageAlt = imageAlt %} {% include
     'post-elements/image.njk' %}
 
+    {% include 'post-elements/author-card.njk' %}
+
     {{ content | safe }}
 
     {% set subHeading = 'Thank you 🤗' %} {% include
