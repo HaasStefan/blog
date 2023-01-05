@@ -1,0 +1,140 @@
+---
+title: Incremental Builds with the Nx Cache
+subtitle: Speed up the build performance of your Angular application with the Nx Cloud
+date: 2023-01-06
+tags: featured
+description: Once your application is growing, the build times and testing times are growing as well. This affects all of the developers locally running the application on their machine but also affects the build pipeline. It is not rare to see build/test times of more than 10 minutes and even more. In order to improve the developer experience and reduce the time the build pipeline takes, you should consider going for an incremental build and remote caching. There are multiple ways of achieving this goal, but easiest solution is to use the Nx Cloud, which I will introduce in this article.
+keywords: [angular, nx, nx-cache, build-performance, caching, nx-cloud, nrwl, incremental-builds, remote-caching]
+image: https://i.imgur.com/dILqjt7.png
+imageAlt:  cover-image
+layout: post
+---
+
+<p>
+    {{description}}
+</p>
+<br>
+<p>
+    The main idea behind <b>Incremental Builds</b> is to slice an application into mini tiny buildable pieces and cache them. When the cache is hot, meaning it has many artifacts stored, a new build can be avoided if the desired artifactes is already existing in the cache. 
+    In that case we would just pull from the cache, which is a lot faster than executing a task that might take minutes.
+    When using Nx, you are already making the benefit of the built-in caching which by default is done locally. 
+    Obviously, it might be a great idea to share a remote cache within a team to always have a very hot cache.
+</p>
+
+
+{% set image = 'https://nx.dev/documentation/shared/incremental-build-webpack-vs-incremental.png' %}
+{% set imageAlt = 'comparison' %} 
+{% set maxHeight = undefined %}
+{% set imageCaption = 'https://nx.dev/more-concepts/incremental-builds' %}
+{% include 'post-elements/image.njk' %}
+
+{% set subHeading = 'Requirements' %}
+{% include 'post-elements/sub-heading.njk' %}
+
+<p>
+    In order to get the benefit out of incremental builds, there are two main requirements that must be fulfilled, because otherwise the remote caching would not be effective.
+    First, you have to have a very fine-grained library slicing, ideally, that a library does not contain more than 7 items. 
+    Additionally, the dependency flow of these fine-grained libraries make a huge impact because if there are no good boundaries, a rebuild of one library will likely cause most other libraries to be rebuilt as well.
+    In order to avoid that, you should follow the 
+    {% set link = 'https://ng-journal.com/blog/2022-12-19-the-enterprise-monorepo-angular-patterns/' %}
+    {% set linkText = 'Enterprise Monorepo Angular Patterns' %}
+    {% include 'post-elements/hyper-link.njk' %}.
+    Another important requirement, is to have buildable libraries. 
+    By default, libraries in an Nx monorepo are not buildable, because Nx can do some optimizations that way. 
+    But in the case of incremental builds, we have to specifically create buildable libraries with the 
+    {% set code = '--buildable' %}
+    {% include 'post-elements/inline-code.njk' %}
+    flag.
+
+    {% set code %}npx nx generate lib someLib --buildable{% endset %}
+    {% set lang = 'plain' %}
+    {% set caption = undefined %}
+    {% include 'post-elements/code.njk' %}
+</p>
+
+{% set subHeading = 'Nx Caching' %}
+{% include 'post-elements/sub-heading.njk' %}
+
+
+
+{% set image = 'https://i.imgur.com/VvYwQSf.png' %}
+{% set imageAlt = 'Caching' %} 
+{% set maxHeight = undefined %}
+{% set imageCaption = 'Caching' %}
+{% include 'post-elements/image.njk' %}
+
+<p>
+    Nx, by default, is already caching locally into a 
+    {% set code = '.cache' %}
+    {% include 'post-elements/inline-code.njk' %}
+    folder in the 
+    {% set code = 'node_modules' %}
+    {% include 'post-elements/inline-code.njk' %}
+    . For the caching it is using a hashing algorithm that takes the <b>node version, projects, task, global configurations</b> into consideration to generate a unique hash value.
+    That means that if you were to add only a single space to a file, the calculated hash value would look entirely different, causing a new build. 
+    Hence, it is of big importance to always use a pre-commit hook for prettifying the code using something like husky. 
+    This is cache is stored in the 
+    {% set code = 'node_modules' %}
+    {% include 'post-elements/inline-code.njk' %} and therefore owned by the local developer and is cleared whenever the
+    {% set code = 'node_modules' %}
+    {% include 'post-elements/inline-code.njk' %} are removed.
+    <br>
+    Anyways, this already works locally, eventhough not very effectively. 
+    Now, in the case of having many buildable libraries, some of them almost always can be retrieved from the cache when they did not change. 
+
+    
+</p>
+
+{% set subHeading = 'Nx Task Graph' %}
+{% include 'post-elements/sub-heading.njk' %}
+
+<p>
+    Since the release of Nx 15.3, we now have the possibility to not only interactively inspect the project graph, but now also the task graph. 
+    That way, we can see which library builds are dependent on each other, hence indicating which libraries might trigger a rebuild of other libraries. 
+    All you have to do to see this graph, is to run the following command and select the Task option on the top left in the menu.
+
+    {% set code %}npx nx graph{% endset %}
+    {% set lang = 'plain' %}
+    {% set caption = undefined %}
+    {% include 'post-elements/code.njk' %}
+</p>
+
+{% set image = 'https://i.imgur.com/eZ3do3B.png' %}
+{% set imageAlt = 'Nx Task Graph' %} 
+{% set maxHeight = undefined %}
+{% set imageCaption = 'Nx Task Graph' %}
+{% include 'post-elements/image.njk' %}
+
+
+{% set subHeading = 'Nx Cloud' %}
+{% include 'post-elements/sub-heading.njk' %}
+
+<p>
+    The Nx Cloud offers <b>Distributed Task Execution</b> and <b>Remote Caching</b> basically out of the box without much setup required.
+    So, if you followed the Enterprise Monorepo Angular Patterns carefully, this step is the easiest, because it only consists of one command.
+</p>
+
+{% set code %}npx nx connect-to-nx-cloud{% endset %}
+{% set lang = 'plain' %}
+{% set caption = undefined %}
+{% include 'post-elements/code.njk' %}
+
+<p>
+    Simple as that! Nothing else needed and you are good to go!
+    <br>
+    <br>
+    Now all of your developers can connect to the remote cache and benefit from the shared caching and reduce build times drastically.
+</p> 
+
+
+{% set subHeading = 'Conclusion' %}
+{% include 'post-elements/sub-heading.njk' %}
+
+<p>
+    Incremental Builds can be achieved by using a remote cache, which a team of developers shares. 
+    It is necessary to have fine-grained buildable libraries that are as independent of each other as possible, such that a lot can be drawn from the cache.
+    In order to use a remote cache, you can either use the Nx Cloud and have everything work out of the box, or you could go ahead and implement a custom remote cache within a custom task runner.
+</p>
+
+{% set repo = 'HaasStefan/nx-giant' %}
+{% include 'post-elements/repo.njk' %}
