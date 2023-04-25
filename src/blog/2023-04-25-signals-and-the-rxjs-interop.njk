@@ -3,35 +3,132 @@ title: Signals and the RxJS Interop
 subtitle: Signals and RxJS are not a contradiction but complementary
 date: 2023-04-25
 tags: featured
-description: Coming up in version 16 of Angular there are a lot of revolutionary changes, such as Signals which will change the way we develop Angular applications from the ground up. Or won't they?
-keywords: [angular, angular-v16, signals, rxjs, rxjs-interop, reactivity, observables, toObservable, toSignal]
+description: Coming up in version 16 of Angular there are a lot of revolutionary changes, such as signals which will change the way we develop Angular applications from the ground up. They are being described as the new reactive primitive and promise a future without the need of NgZones, such that change detection will be able to run more fine-grained. This will lead to more performant applications and introduces a standard for handling reactivity in Angular.
+keywords:
+  [
+    angular,
+    angular-v16,
+    signals,
+    rxjs,
+    rxjs-interop,
+    reactivity,
+    observables,
+    toObservable,
+    toSignal,
+  ]
 image: https://i.imgur.com/3OTimz0.png
-imageAlt:  cover-image
+imageAlt: cover-image
 layout: post
 ---
 
 <p>
-    {{description}} <br>
-    They are being described as the new reactive primitive and promise a future without the need of NgZones, such that change detection will be able to run more fine-grained. 
-    This will lead to more performant applications and introduces a standard for handling reactivity in Angular. 
-    But hold on a second... <b>What about my beloved RxJS?!</b>
+  {{ description }} <br />
+
+  But hold on a second... <b>What about my beloved RxJS?!</b>
 </p>
 
 <p>
-    
+  <br />
+  Although both tackle reactivity, signals are meant to be used to correspond to
+  fine-grained value changes introducing a new way of doing change detection
+  more locally, rather than traversing the entire component tree checking for
+  changes. This process is synchronous, which is key deviation from RxJS, cause
+  RxJS is asynchronous. An observable, although reactive, does not have any
+  implications on change detection and is therefore not a reactive primitive. A
+  signal can be thought of as values that change over time for which there is a
+  producer and a consumer. On the other hand, RxJS is an event stream, where an
+  observer can react to events.
+
+</p>
+<p>
+    <br />
+  By this very definition they are not competitive, but instead complementary to
+  each other. Additionally, the Angular team has put a focus on making the
+  interoperability between signals and RxJS a piece of cake. So don't worry,
+  RxJS is not vanishing. Maybe it will be used just a bit less for cases where
+  it is a bit over-blown, but that is for the better.
 </p>
 
+{% set subHeading = 'Signal to Observable' %} 
+{% include 'post-elements/sub-heading.njk' %} 
+<p>
+    If you already have a signal and want to create an observable from it which emits whenever the signal produces a new value, than you can use the 
+    {% set code = 'toObservable' %}
+    {% include 'post-elements/inline-code.njk' %} function.     
+</p>
 
-{% set subHeading = 'Signal to Observable' %}
-{% include 'post-elements/sub-heading.njk' %}
+{% set code %}readonly searchCriteria = signal('');
+readonly result$ = toObservable(this.searchCriteria).pipe(
+  filter((criteria) => criteria.length > 4),
+  switchMap((criteria) => this.searchService.search(criteria))
+);{% endset %}
+{% set lang = 'typescript' %}
+{% set caption = 'toObservable' %}
+{% include 'post-elements/code.njk' %}
 
 {% set subHeading = 'Observable to Signal' %}
-{% include 'post-elements/sub-heading.njk' %}
+{% include 'post-elements/sub-heading.njk' %} 
+<p>
+    If yu want to go the other way around and create a signal from an observable, which produces a new value on each emit of the oservable, than you can use the 
+    {% set code = 'toSignal' %}
+    {% include 'post-elements/inline-code.njk' %} function.     
+</p>
 
+{% set code %}readonly searchCriteria = signal('');
+readonly result$ = toObservable(this.searchCriteria).pipe(
+  filter((criteria) => criteria.length > 4),
+  switchMap((criteria) => this.searchService.search(criteria))
+);
+readonly result = toSignal(this.result$);{% endset %}
+{% set lang = 'typescript' %}
+{% set caption = 'toSignal' %}
+{% include 'post-elements/code.njk' %}
 
-{% set subHeading = 'Implications' %}
-{% include 'post-elements/sub-heading.njk' %}
+<p>
+    <b>Attention!</b> Be careful, that the observable emits a value before the signal is read, because otherwise the signal would throw an error, because it needs to have an initial value.
+    You could either make a 
+    {% set code = 'BehaviorSubject' %}
+    {% include 'post-elements/inline-code.njk' %}
+     to a signal, or have a 
+     {% set code = 'startWith' %}
+     {% include 'post-elements/inline-code.njk' %}
+    , or you specify an initial value in the 
+    {% set code = 'toSignal' %}
+    {% include 'post-elements/inline-code.njk' %}
+     function.
+</p>
 
+{% set code %}readonly result = toSignal(this.result$, { 
+  initialValue: [] as Result[] 
+});{% endset %}
+{% set lang = 'typescript' %}
+{% set caption = 'toSignal - initialValue' %}
+{% include 'post-elements/code.njk' %}
 
-{% set repo = 'HaasStefan/angular-signals-demo' %}
+{% set subHeading = 'Implications' %} 
+{% include 'post-elements/sub-heading.njk' %} 
+
+<p>
+    Signals will change a lot in the way we develop Angular applications, including the use of RxJS.
+    RxJS will not go away, but might decline a bit, because there are new ways of doing reactive synchronous programming in Angular that are simply easier in comparison.
+    <br>
+    <br>
+    One shift we will likely see it the vanishing of the 
+    {% set code = 'async' %}
+    {% include 'post-elements/inline-code.njk' %} pipe. 
+    In the future whenever an observable would go into the template, there will be a conversion to a signal, such that the fine-grained change detection works.
+    <br>
+    <br>
+    RxJS will primarily be used in cases where something asynchronous needs to happen on a signal value change. 
+    Some Angular APIs will change and provide signals, such as the Router API for accessing route params, which had to be done with a subscribe on an observable before.
+    But others like the 
+    {% set code = 'HttpClient' %}
+    {% include 'post-elements/inline-code.njk' %}
+     won't get signal support because the 
+     {% set code = 'HttpClient' %}
+    {% include 'post-elements/inline-code.njk' %}
+     by definition is asynchronous and therefore has no need for signals.
+</p>
+
+{% set repo = 'HaasStefan/angular-signals-demo' %} 
 {% include 'post-elements/repo.njk' %}
