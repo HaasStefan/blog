@@ -2,8 +2,7 @@
 layout: "base.njk"
 ---
 
-
-<div class="flex flex-col lg:flex-row justify-center lg:justify-between">
+<div class="flex w-full justify-center">
   <article
     class="max-w-screen-lg w-full flex-auto p-4 text-lg leading-relaxed md:leading-loose"
   >
@@ -25,22 +24,20 @@ layout: "base.njk"
     <h2 class="text-xl text-neutral-600 font-bold mb-6">{{ subtitle }}</h2>
 
     {% set image = image %} {% set imageAlt = imageAlt %} {% include
-    'post-elements/image.njk' %}
-
-    {% include 'post-elements/author-card.njk' %}
+    'post-elements/image.njk' %} {% include 'post-elements/author-card.njk' %}
 
     {{ content | safe }}
 
-
     {% set subHeading = '🔔 Angular Code Reviews 🔔' %} {% include
-      'post-elements/sub-heading.njk' %}
+    'post-elements/sub-heading.njk' %}
 
-      <p>Do you want me to check your code and see if there are any security vulnerabilities, architectural flaws, or bad practices? 
-        Then let's work together and let me do a 
-        {% set
-          link = 'https://ng-journal.com/code-review/' %} {% set linkText = 'Code Review' %}
-          {% include 'post-elements/hyper-link.njk' %} and get things checked.
-      </p>
+    <p>
+      Do you want me to check your code and see if there are any security
+      vulnerabilities, architectural flaws, or bad practices? Then let's work
+      together and let me do a {% set link =
+      'https://ng-journal.com/code-review/' %} {% set linkText = 'Code Review'
+      %} {% include 'post-elements/hyper-link.njk' %} and get things checked.
+    </p>
 
     {% set subHeading = 'Thank you 🤗' %} {% include
     'post-elements/sub-heading.njk' %}
@@ -55,14 +52,12 @@ layout: "base.njk"
       discussion. <br />
 
       <b>Haven't subscribed yet? </b>
-        Scroll down and don't miss any new articles anymore.
+      Scroll down and don't miss any new articles anymore.
     </p>
   </article>
-
-  <section class="lg:max-w-sm w-full p-4">
-    {% include 'recommendations.njk' %}
-  </section>
 </div>
-
+<div class="flex w-full justify-center">
+  <section class="max-w-screen-lg p-4 ">{% include 'recommendations.njk' %}</section>
+</div>
 
 <script src="/js/share.js"></script>
