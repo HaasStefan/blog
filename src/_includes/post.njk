@@ -2,7 +2,8 @@
 layout: "base.njk"
 ---
 
-<div class="sm:flex sm:justify-center">
+
+<div class="flex flex-col lg:flex-row justify-center lg:justify-between">
   <article
     class="max-w-screen-lg w-full flex-auto p-4 text-lg leading-relaxed md:leading-loose"
   >
@@ -55,9 +56,12 @@ layout: "base.njk"
 
       <b>Haven't subscribed yet? </b>
         Scroll down and don't miss any new articles anymore.
-        <br /><br />
     </p>
   </article>
+
+  <section class="lg:max-w-sm w-full p-4">
+    {% include 'recommendations.njk' %}
+  </section>
 </div>
 
 
