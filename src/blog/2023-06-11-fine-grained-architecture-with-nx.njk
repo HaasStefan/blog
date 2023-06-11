@@ -1,0 +1,178 @@
+---
+title: Fine-grained Architecture with Nx
+subtitle: Achieving the fastest possible builds with Nx Caching and fine-grained libraries
+date: 2023-06-11
+tags: featured
+description: It is fairly common to have a granular strucutre when using Nx because of the module-boundary rules that can be enforced with the linter. This has been one of the main selling points of Nx. Another, yet underrated, selling point for these fine-grained libs is the ability to build them incrementally. This can lead to a significant speedup in build times.  
+keywords:
+  [
+    angular,
+    nx,
+    nx-workspace,
+    module-boundaries,
+    incremental-builds,
+    architecture
+  ]
+image: https://i.imgur.com/9BjNvch.png  
+imageAlt: cover-image
+layout: post
+---
+
+{% set subHeading = 'Introduction' %}
+{% include 'post-elements/sub-heading.njk' %}
+
+<p>
+    {{ description }}
+    <br>
+</p>
+
+<p>
+    Usually, we would use something like the 
+    {% set link = 'https://ng-journal.com/blog/2022-12-19-the-enterprise-monorepo-angular-patterns/' %}
+    {% set linkText = 'Enterprise Monorepo Angular Patterns' %}
+    {% include 'post-elements/hyper-link.njk' %}
+     to structure our application into domain layers, whereas each layer consists of one or more libraries. 
+    This is a great way to structure your application, especially because it enforces the module-boundary rules and allows for a clear separation of concerns and incremental builds with the Nx cache.
+    <br>
+    If we want to go a step further and get even more performance out of the Nx cache, we can split up our libraries even further into tinier libraries. How tiny?
+    <b>Just one element per library!</b>
+    <br>
+    You want to create a directive? Okay, then you need to create a whole library for it. 
+    But don't worry, although it sounds like a lot of overhead, it is actually not that bad, because we can use the Nx CLI to generate the libraries for us. 
+    We still get a whole lot more configuration files, but all of them are auto-generated, which means there is no extra work for us.
+</p>
+
+<p>
+    <br>
+    Let's take a step back and talk about the Nx cache for a second.
+</p>
+
+{% set subHeading = 'Nx Caching' %}
+{% include 'post-elements/sub-heading.njk' %}
+
+{% set image = 'https://i.imgur.com/C4ZKZIJ.png' %}
+{% set imageAlt = 'Hashing Algorithm' %} 
+{% set maxHeight = undefined %}
+{% set imageCaption = 'Hashing Algorithm' %}
+{% include 'post-elements/image.njk' %}
+
+<p>
+    Nx, by default, is already caching locally into a 
+    {% set code = '.cache' %}
+    {% include 'post-elements/inline-code.njk' %}
+    folder in the 
+    {% set code = 'node_modules' %}
+    {% include 'post-elements/inline-code.njk' %}
+    . For the caching it is using a hashing algorithm that takes the <b>node version, projects, task, global configurations</b> into consideration to generate a unique hash value.
+    That means that if you were to add only a single space to a file, the calculated hash value would look entirely different, causing a new build. 
+    Hence, it is of big importance to always use a pre-commit hook for prettifying the code using something like husky or git hooks. 
+    By default, this cache is stored in the 
+    {% set code = 'node_modules' %}
+    {% include 'post-elements/inline-code.njk' %} and therefore owned by the local developer and is cleared whenever the
+    {% set code = 'node_modules' %}
+    {% include 'post-elements/inline-code.njk' %} are removed.
+    <br>
+    Note, that you could use a distributed cache instead, to share the cache between developers. 
+    For this you could easily connect to the Nx Cloud or use a custom remote cache by adapting the local task runner. 
+</p>
+
+{% set image = 'https://i.imgur.com/2E89w58.png' %}
+{% set imageAlt = 'Affected Libs' %} 
+{% set maxHeight = undefined %}
+{% set imageCaption = 'Affected Libs' %}
+{% include 'post-elements/image.njk' %}
+
+<p>
+    Now that we know how the Nx cache works, let's talk about how we can use it to our advantage. 
+    Imagine that you changed a little thing in a component, does it really make sense to rebuild the entire application? Not really, right? 
+
+    <br>
+    In order to avoid having to rebuild the entire application, we can create buildable libraries which then are cached individually. 
+    If a library has not changed, it will not be rebuilt and drawn from the hot cache. , it should be clear that the more libraries we have, the more fine-grained our cache will be. 
+    The more likely it is that we can draw more from the cache.
+</p>
+
+
+{% set subHeading = 'Fine-grained Libs' %}
+{% include 'post-elements/sub-heading.njk' %}
+
+<p>
+    Whereas in common DDD-approaches we would have one or more libraries for each domain-layer, which may have multiple components, services, directives, etc., in a fine-grained approach we would have one library per component, service, directive, etc.
+    This does not contradict DDD because we could still follow the same domain-layer structure, but with more libraries.
+    In this blog post, I will not take DDD into consideration and will only focus on the basic fine-grained approach.
+</p>
+
+{% set image = 'https://i.imgur.com/BrF4Faq.png' %}
+{% set imageAlt = 'Libs' %} 
+{% set maxHeight = undefined %}
+{% set imageCaption = 'Libraries' %}
+{% include 'post-elements/image.njk' %}
+
+<p>
+    <b>app</b> - Application <br>
+    <b>route</b> - Contains a route constant <br>
+    <b>smart-component</b> - Contains a smart component, which is able to inject facades<br>
+    <b>dumb-component</b> - Contains a dumb component<br>
+    <b>facade</b> - Contains a facade, which is hdies state management and data services <br>
+    <b>data-service</b> - Contains a data service, which is responsible for fetching data from the backend <br>
+    <b>directive</b> - Contains a directive <br>
+    <b>pipe</b> - Contains a pipe <br>
+    <b>util</b> - Contains a utility function <br>
+    <b>model</b> - Contains a model <br>
+</p>
+
+<p>
+    <br>
+    With the 
+    {% set code = '@nx/enforce-module-boundaries' %}
+    {% include 'post-elements/inline-code.njk' %} rule we can enforce that only certain libraries can be imported by other libraries. 
+    Therefore, it is possible to setup architectural rules such that only  
+    {% set code = 'facade' %}
+    {% include 'post-elements/inline-code.njk' %} can be imported by  
+    {% set code = 'smart-component' %}
+    {% include 'post-elements/inline-code.njk' %} and is the only library allowed to import  
+    {% set code = 'data-service' %}
+    {% include 'post-elements/inline-code.njk' %}. Also,
+    {% set code = 'dumb-component' %}
+    {% include 'post-elements/inline-code.njk' %} cannot be imported by 
+    {% set code = 'smart-component' %}
+    {% include 'post-elements/inline-code.njk' %}. 
+</p>
+
+<p>
+    <br>
+    A typical task graph of a small fine-grained architecture would look like this:
+</p>
+
+{% set image = 'https://i.imgur.com/IF1Yy5R.png' %}
+{% set imageAlt = 'Task Graph' %} 
+{% set maxHeight = undefined %}
+{% set imageCaption = 'Task Graph' %}
+{% include 'post-elements/image.njk' %}
+
+
+<p>
+    Note that this is only a small example. In a real-world application, the task graph would be much bigger. 
+    Anyways, we can see the order of the build tasks and reason about the affected libraries by visualizing the task graph.
+</p>
+
+
+{% set subHeading = 'Result' %}
+{% include 'post-elements/sub-heading.njk' %}
+
+<p>
+    🔥 Maximum build-time optimization <br>
+    🔥 Smallest possible module-boundaries <br>
+    🔥 Architectural dependency constraint rules <br>
+    🔥 Fine-grained dependency graph <br>
+</p>
+
+{% set image = 'https://i.imgur.com/K4Xv48q.png' %}
+{% set imageAlt = 'results' %} 
+{% set maxHeight = undefined %}
+{% set imageCaption = '5s for 10 cached, 1 rebuilt' %}
+{% include 'post-elements/image.njk' %}
+
+
+{% set repo = 'HaasStefan/fine-grained-libs-with-nx' %} 
+{% include 'post-elements/repo.njk' %}
