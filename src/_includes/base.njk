@@ -12,15 +12,16 @@
     }}" />
     <link rel="stylesheet" href="/css/style.css" />
 
-
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-DJVCQCD4HN"></script>
-
     <script
       src="https://kit.fontawesome.com/d760aeaac6.js"
       crossorigin="anonymous"
     ></script>
     <script src="/js/index.js"></script>
+
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.7.0/flowbite.min.css"
+      rel="stylesheet"
+    />
 
     <link
       rel="stylesheet"
@@ -37,6 +38,10 @@
     <meta name="twitter:creator" content="@StefanvHaas" />
     <meta property="og:title" id="og-title" content="{{ title }}" />
     <meta property="og:image" id="og-image" content="{{ image }}" />
+
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <meta
       property="og:description"
       id="og-description"
@@ -56,9 +61,9 @@
         {{ content | safe }}
       </main>
 
-      
       {% include 'footer.njk' %}
     </div>
-    {% include 'cookie-banner.njk' %}
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.7.0/flowbite.min.js"></script>
   </body>
 </html>
