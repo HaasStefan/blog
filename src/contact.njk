@@ -23,7 +23,7 @@ image: "/assets/ng-journal.png"
     contactForm.addEventListener('submitForm', (event) => {
         const formData = event.detail;
 
-        fetch('./.netlify/functions/contact?' + new URLSearchParams({
+        fetch('/.netlify/functions/contact?' + new URLSearchParams({
             ...formData
         }))
     });
