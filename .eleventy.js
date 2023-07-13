@@ -19,6 +19,7 @@ module.exports = function (eleventyConfig) {
         "src/js/share.js",
         "src/js/repo.js",
         "src/js/subscribe.js",
+        "src/js/main.js"
       ],
       bundle: true,
       sourcemap: false,
@@ -76,6 +77,12 @@ module.exports = function (eleventyConfig) {
 
   eleventyConfig.addPassthroughCopy("src/assets");
   // eleventyConfig.addPassthroughCopy("src/styles");
+
+  eleventyConfig.addPassthroughCopy({
+    "node_modules/primeng/resources/themes/bootstrap4-light-blue/theme.css": "primeng/resources/themes/bootstrap4-light-blue/theme.css",
+    "node_modules/primeng/resources/primeng.css": "primeng/resources/primeng.css",
+    "node_modules/primeng/resources/primeng.min.css": "primeng/resources/primeng.min.css",
+  });
 
   return {
     markdownTemplateEngine: "njk",
