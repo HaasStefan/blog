@@ -12,7 +12,7 @@ exports.handler = async (event, context) => {
   const { concern, name, email, company, subject, message } =
     event.queryStringParameters;
 
-  console.log(`new contact request: ${event.queryStringParameters}`);
+  console.log(`new contact request: ${JSON.stringify(event.queryStringParameters)}`);
 
   try {
     await transporter.sendMail({
