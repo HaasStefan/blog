@@ -24,9 +24,8 @@ image: "/assets/ng-journal.png"
         const formData = event.detail;
 
         fetch('/.netlify/functions/contact?' + new URLSearchParams({
-            ...formData
+            ...formData,
+            sentFromWebsite: true
         }))
     });
 </script>
-
-<!-- todo netlify function -->

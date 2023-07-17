@@ -3,3 +3,4 @@
 # Local Netlify folder
 .netlify
 local_env
+.DS_Store

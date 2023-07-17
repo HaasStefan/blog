@@ -9,11 +9,17 @@ const transporter = nodemailer.createTransport({
 });
 
 exports.handler = async (event, context) => {
-  const { concern, name, email, company, subject, message } =
+  const { concern, name, email, company, subject, message, sentFromWebsite } =
     event.queryStringParameters;
 
   console.log(`new contact request: ${JSON.stringify(event.queryStringParameters)}`);
 
+  if (!sentFromWebsite) {
+    return {
+      statusCode: 403,
+    };
+  }
+  
   try {
     await transporter.sendMail({
       from: `"${name}" <${email}>`,
