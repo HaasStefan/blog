@@ -12,18 +12,21 @@ exports.handler = async (event, context) => {
   const { concern, name, email, company, subject, message } =
     event.queryStringParameters;
 
+  console.log(`new contact request: ${event.queryStringParameters}`);
+
   try {
     await transporter.sendMail({
       from: `"${name}" <${email}>`,
       to: "stefan.haas.privat@gmail.com",
       subject: `Angular Journal - ${subject}`,
-      text: `Concern: ${concern}\nName: ${name}\nEmail: ${email}\nCompany: ${company}\nMessage: ${message}`,
-      html: `<p>Concern: ${concern}</p><p>Name: ${name}</p><p>Email: ${email}</p><p>Company: ${company}</p><p>Message: ${message}</p>`,
+      text: `Concern: ${concern}\nName: ${name}\nEmail: ${email}\nCompany: ${company}\nMessage: ${message}\nSubject: ${subject}`,
+      html: `<p>Concern: ${concern}</p><p>Name: ${name}</p><p>Email: ${email}</p><p>Company: ${company}</p><p>Message: ${message}</p><p>Subject: ${subject}</p>`,
     });
     return {
       statusCode: 200,
     };
-  } catch {
+  } catch (e) {
+    console.error("Internal error", e);
     return {
       statusCode: 500,
     };
