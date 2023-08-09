@@ -1,5 +1,5 @@
 ---
-title: Architecting an Nx Workspace with an NgRx Store
+title: Architecting an Nx Workspace containing NgRx
 subtitle: Using module boundaries, hexagonal architecture and modern NgRx
 date: 2023-08-09
 tags: featured
@@ -18,7 +18,6 @@ image: https://i.imgur.com/gc6t2n6.png
 imageAlt: cover-image
 layout: post
 ---
-
 
 <p>
     {{ description }}
@@ -179,11 +178,246 @@ layout: post
   {% set caption = '.eslintrc.json' %}
   {% include 'post-elements/code.njk' %}
 
-{% set subSubHeading = 'Creating a Feature' %}
+{% set subSubHeading = 'Creating a Feature Slice for a Domain' %}
 {% include 'post-elements/sub-sub-heading.njk' %}
+
+<p>
+    Following the Enterprise Monorepo Pattern, we vertically slice our application into domains which should be as independent as possible.
+    But that does not mean, that each of these domains should have its own store instance. 
+    Instead, we are using a global store and create feature slices for each domain.
+</p>
+
+<p>
+    In order to setup the global store for an Angular application using standalone APIs, we need to add 
+    {% set code = 'provideEffects()' %}
+    {% include 'post-elements/inline-code.njk' %}
+    and
+    {% set code = 'provideStore()' %}
+    {% include 'post-elements/inline-code.njk' %}
+    to the providers array of the 
+    {% set code = 'appConfig' %}
+    {% include 'post-elements/inline-code.njk' %}.
+</p>
+
+{% set code %}export const appConfig: ApplicationConfig = {
+  providers: [
+    provideEffects(),
+    provideStore(),
+    provideRouter(appRoutes),
+    provideHttpClient(),
+    !environment.production ? provideStoreDevtools() : []
+  ],
+};{% endset %}
+  {% set lang = 'typescript' %}
+  {% set caption = 'app.config.ts' %}
+  {% include 'post-elements/code.njk' %}
+
+  <p>
+    Now we can create a feature slice for a domain by creating a new library with the tag <b>type:state</b> inside a domain.
+    This state library contains all your NgRx specific code like actions, reducers, effects and selectors. 
+    You also have to make sure that you export the actions, reducers, effects and selectors from the library by exporting them in the 
+    {% set code = 'index.ts' %}
+    {% include 'post-elements/inline-code.njk' %} of the state library.
+    <br>
+    <br>
+  </p>
+
+
+  <p>
+    You can use the 
+    {% set code = 'ngrx-feature-store' %}
+    {% include 'post-elements/inline-code.njk' %} Nx generator to create some of the NgRx code. 
+    After running the generator you should be able to see a lot of files in your state library.
+<br>
+<br>
+    First things first, lets take a look at the actions file. 
+    Nowadays, we are using the createActionGroup function to create a group of actions because it saves some boilerplate code and helps with structure.
+    For example, we can make a group of actions for the API calls of a feature slice and another group just for specific page actions.
+    It is crucial to not reuse actions in order to have a good action hygiene, such that you are able to track the flow of actions in your application.
+    Structuring your actions in groups helps with that.
+
+
+    {% set code %}export const initCustomers = createAction('[Customers Page] Init');
+
+export const customerApiActions = createActionGroup({
+  source: 'Customers API',
+  events: {
+    loadCustomers: emptyProps(),
+    loadCustomersSuccess: props<{ customers: CustomersEntity[] }>(),
+    loadCustomersFailure: props<{ error: unknown }>(),
+  },
+});{% endset %}
+{% set lang = 'typescript' %}
+{% set caption = 'customers.actions.ts' %}
+{% include 'post-elements/code.njk' %}
+    
+
+
+    Inside the reducer file you should be able to see the reducers and the initial state of the feature slice.
+
+    {% set code %}export interface CustomersState extends EntityState<CustomersEntity> {
+  selectedId: string | null;
+  loaded: boolean;
+  error: unknown | null;
+}
+
+export const customersAdapter: EntityAdapter<CustomersEntity> =
+  createEntityAdapter<CustomersEntity>();
+
+export const initialCustomersState: CustomersState =
+  customersAdapter.getInitialState({
+    selectedId: null,
+    loaded: false,
+    error: null,
+  });{% endset %}
+  {% set lang = 'typescript' %}
+  {% set caption = 'customers.reducer.ts' %}
+  {% include 'post-elements/code.njk' %}
+
+
+    You might be wondering where the feature key is - but nowadays, we don't need it anymore. 
+    The 
+    {% set code = 'createFeature' %}
+    {% include 'post-elements/inline-code.njk' %} function reduces the boilerplate of creating a feature slice and automatically adds the feature key.
+
+    And it does even more. It also creates selectors for the feature slice automactically but you can still create extra selectors. 
+    With some TypeScript magic under the hood, selectors are created automatically for each property in the state. 
+    <br>
+    <br>
+    Note, that the 
+    {% set code = 'createFeature' %}
+    {% include 'post-elements/inline-code.njk' %} function requires you to not use optional properties in the state.
+
+    This means that using 
+    {% set code = 'loaded?: boolean' %}
+    {% include 'post-elements/inline-code.njk' %} in the state is not allowed. 
+    In order to prevent this, you can nevertheless make a type union like 
+    {% set code = 'loaded: boolean | undefined' %}
+    {% include 'post-elements/inline-code.njk' %} or
+    {% set code = 'loaded: boolean | null' %}
+    {% include 'post-elements/inline-code.njk' %}.
+
+{% set code %}const { selectAll } = customersAdapter.getSelectors();
+
+/**
+ * 👧🏻 Modern NgRx with out-of-the-box selectors
+ */
+export const customersFeature = createFeature({
+  name: 'customers',
+  reducer: createReducer(
+    initialCustomersState,
+    on(CustomersActions.initCustomers, (state) => ({
+      ...state,
+      loaded: false,
+      error: null,
+    })),
+    on(customerApiActions.loadCustomersSuccess, (state, { customers }) =>
+      customersAdapter.setAll(customers, { ...state, loaded: true })
+    ),
+    on(customerApiActions.loadCustomersFailure, (state, { error }) => ({
+      ...state,
+      error,
+    }))
+  ),
+  extraSelectors: ({
+    selectCustomersState,
+  }) => ({
+    selectAllCustomers: createSelector(
+      selectCustomersState,
+      (state: CustomersState) => selectAll(state)
+    ),
+  }),
+});{% endset %}
+{% set lang = 'typescript' %}
+{% set caption = 'customers.reducer.ts' %}
+{% include 'post-elements/code.njk' %}
+
+  </p>
+
+
+  <p>
+    Before actually being able to use the feature slice, we have to provide the effects and the feature itself to the global store. 
+    Using standalone APIs this can be done by adding the effects and the feature to a 
+    {% set code = 'Routes' %}
+    {% include 'post-elements/inline-code.njk' %} configuration and adding the
+    {% set code = 'provideState()' %}
+    {% include 'post-elements/inline-code.njk' %} and
+    {% set code = 'provideEffects()' %}
+    {% include 'post-elements/inline-code.njk' %}
+    functions to the providers array.
+  </p>
+
+  {% set code %}export const routes: Routes = [
+  {
+    path: '',
+    providers: [
+      provideState(customersFeature),
+      provideEffects(customersEffects),
+    ],
+    children: [
+      {
+        path: '',
+        pathMatch: 'full',
+        redirectTo: 'list',
+      },
+      {
+        path: 'list',
+        loadComponent: async () =>
+          (await import('@ngrx-leaky-backends/customer/feature-list'))
+            .FeatureListComponent,
+      },
+    ],
+  },
+];{% endset %}
+{% set lang = 'typescript' %}
+{% set caption = 'customer.routes.ts' %}
+{% include 'post-elements/code.njk' %}
+
+  
+<p>
+    Now, the store can be injected as usual but nowadays, we are not bound to retrieve observables from selectors. By using the 
+    {% set code = 'selectSignal' %}
+    {% include 'post-elements/inline-code.njk' %} function, we can retrieve signals from the store as well. 
+</p>
+
+{% set code %}@Component({
+  selector: 'ngrx-leaky-backends-feature-list',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './feature-list.component.html',
+  styleUrls: ['./feature-list.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class FeatureListComponent implements OnInit {
+  private readonly store = inject(Store);
+  readonly customersSignal = this.store.selectSignal(customersFeature.selectAllCustomers);
+  readonly customersLoadedSignal = this.store.selectSignal(
+    customersFeature.selectLoaded
+  );
+
+  ngOnInit() {
+    this.store.dispatch(customerApiActions.loadCustomers());
+  }
+}
+{% endset %}
+{% set lang = 'typescript' %}
+{% set caption = 'feature-list.component.ts' %}
+{% include 'post-elements/code.njk' %}
 
 {% set subHeading = 'Hexagonal Architecture' %}
 {% include 'post-elements/sub-heading.njk' %}
+
+<p>
+    If you want to make sure, that your application is as independent from the backend as possible, you could additionally introduce a hexagonal architecture. 
+    Usually, this means that you have a core module which contains all the business logic and a feature module which contains all the infrastructure logic. 
+    The feature module is then responsible for providing the core module with the necessary dependencies.
+    Ports and adapters are used to make sure that the core module is not dependent on the feature module. 
+    <br>
+    <br>
+    I would suggest being very pragmatic about this. If you are working on a small application, you might not need a hexagonal architecture. 
+    In fact, even if you are working on a big application, you might not need a hexagonal architecture. 
+    Usually, backends benefit more from a hexagonal architecture than frontends.     
+</p>
 
 {% set image = 'https://i.imgur.com/BH3Gm9q.png' %}
 {% set imageAlt = 'hexagonal architecture' %} 
@@ -192,14 +426,177 @@ layout: post
 {% include 'post-elements/image.njk' %}
 
 <p>
+    <b>But...</b> 
+    The concept of Ports and Adapters can be useful if you really want to have this independence from the backend. 
+    In this case, you can use a generic port service which is responsible for communicating with the backend. 
+    The actual implementation is provided in aa specific adapter. 
+    This adapter could be a REST adapter, a GraphQL adapter, a mock adapter or a Firebase adapter. 
+    The consumer of the port service does not know which adapter is used and therefore does not need to know how the backend is implemented.
+    <br>
+    <br>
+</p>
+
+<p>
+    The port service should be an abstract service which is implemented by the adapters. The abstract methods should be really generic. 
+    It is also important that you use a 
+    {% set code = 'useFactory' %}
+    {% include 'post-elements/inline-code.njk' %} or a
+    {% set code = 'useClass' %}
+    {% include 'post-elements/inline-code.njk' %} provider key 
+    to provide an adapter service.
+</p>
+
+{% set code %}@Injectable({
+  providedIn: 'root',
+  useFactory: useCustomerAdapter,
+})
+export abstract class CustomerPortService {
+  abstract loadOne(id: string): Observable<Customer>;
+  abstract loadAll(): Observable<Customer[]>;
+  abstract create(customer: Customer): Observable<Customer>;
+  abstract update(id: string, customer: Customer): Observable<Customer>;
+}
+{% endset %}
+  {% set lang = 'typescript' %}
+  {% set caption = 'customer-port.service.ts' %}
+  {% include 'post-elements/code.njk' %}
+
+
+<p>
+    The adapter service should be a concrete service which implements the abstract port service. 
+    The implementation should be as specific as possible. 
+    For example, if you are using a REST adapter, you should use the 
+    {% set code = 'HttpClient' %}
+    {% include 'post-elements/inline-code.njk' %} to communicate with the backend. 
+    If you are using a GraphQL adapter, you should use the 
+    {% set code = 'Apollo' %}
+    {% include 'post-elements/inline-code.njk' %} to communicate with the backend. 
+    If you are using a Firebase adapter, you should use the 
+    {% set code = 'AngularFire' %}
+    {% include 'post-elements/inline-code.njk' %} to communicate with the backend. 
+    If you are using a mock adapter, you should use a mock service to communicate with the backend.
+
+    Here you can see a mock adapter which is used to mock the backend:
 
 </p>
 
-{% set subHeading = 'Modern NgRx' %}
+{% set code %}@Injectable({
+  providedIn: 'root',
+})
+export class CustomerMockAdapterService implements CustomerPortService {
+  private readonly http = inject(HttpClient);
+  private readonly baseUrl = '/assets/customers.json';
+
+  loadOne(id: string): Observable<Customer> {
+    return this.http.get<CustomerDto[]>(this.baseUrl).pipe(
+      map((customersDto) =>
+        customersDto.map(
+          (customerDto) =>
+            ({
+              id: customerDto.id,
+              firstName: customerDto.first_name,
+              lastName: customerDto.last_name,
+              dateOfBirth: new Date(customerDto.date_of_birth * 1000),
+              email: customerDto.email,
+              phone: customerDto.phone,
+            } satisfies Customer)
+        )
+      ),
+      map((customers) => customers.find((customer) => customer.id === id)),
+      filter((customer): customer is NonNullable<typeof customer> => !!customer)
+    );
+  }
+
+  loadAll(): Observable<Customer[]> {
+    // ...
+  }
+
+  create(customer: Customer): Observable<Customer> {
+    return of(customer);
+  }
+
+  update(id: string, customer: Customer): Observable<Customer> {
+    return of(customer);
+  }
+}{% endset %}
+    {% set lang = 'typescript' %}
+    {% set caption = 'customer-mock-adapter.service.ts' %}
+    {% include 'post-elements/code.njk' %}
+
+<p>
+    The way we choose which adapter should be used is done by using the
+    {% set code = 'useCustomerAdapter' %}
+    {% include 'post-elements/inline-code.njk' %} factory function.
+    In my implementation I use the
+    {% set code = 'environment' %}
+    {% include 'post-elements/inline-code.njk' %} to determine which adapter should be used.
+    If I am in development mode, I use the mock adapter. Otherwise, I use a REST adapter.
+
+</p>
+
+{% set code %}export const useCustomerAdapter = () =>
+  inject(ENVIRONMENT).mockBackend
+    ? inject(CustomerMockAdapterService)
+    : inject(CustomerAdapterService);{% endset %}
+    {% set lang = 'typescript' %}
+    {% set caption = 'customer-mock-adapter.service.ts' %}
+    {% include 'post-elements/code.njk' %}
+
+    <p>
+        Now the 
+        {% set code = 'CustomerPortService' %}
+        {% include 'post-elements/inline-code.njk' %}
+        can be injected in the effects of the NgRx store such that the effects are not dependent on the backend implementation.
+        This way, we can easily switch between different backend implementations because the backend does not leak into the frontend.
+    </p>
+
+    {% set code %}export const loadCustomers = createEffect(
+    (actions$ = inject(Actions), customerService = inject(CustomerPortService)) =>
+      actions$.pipe(
+        ofType(customerApiActions.loadCustomers),
+        switchMap(() =>
+          customerService.loadAll().pipe(
+            switchMap((customers) =>
+              of(customerApiActions.loadCustomersSuccess({ customers }))
+            ),
+            catchError((error) => {
+              console.error('Error', error);
+              return of(customerApiActions.loadCustomersFailure({ error }));
+            })
+          )
+        )
+      ),
+    { functional: true }
+  );{% endset %}
+  {% set lang = 'typescript' %}
+  {% set caption = 'customers.effects.ts' %}
+  {% include 'post-elements/code.njk' %}
+
+  <p>
+    Note, that it is important to add the 
+    {% set code = 'functional: true' %}
+    {% include 'post-elements/inline-code.njk' %} option to the effect when using functional effects without classes.
+    Otherwise, the 
+    {% set code = 'provideEffect()' %}
+    {% include 'post-elements/inline-code.njk' %} would not work.
+    This is needed to keep backwards compatibility with the old class-based effects.
+  </p>
+
+
+{% set subHeading = 'Conclusion' %}
 {% include 'post-elements/sub-heading.njk' %}
 
 <p>
-
+    In this article, we have seen how NgRx can be used effectively in an Nx workspace and how the module boundaries can be defined.
+    We also have seen how the backend can be abstracted away from the frontend by using the ports and adapters pattern.
+<br>
+<br>
+    All in all, NgRx itself is a very debated topic in the Angular community - nevertheless for a fact 1 in 6 Angular projects use NgRx (shown by npm stats) and many enterprise projects benefit from it.
+    I hope this article helps you to get started with modern NgRx and Nx and to use it in your next project.
+    <br>
+    <br>
+    To be fair, I would be a bit hesitant to use the ports and adapters pattern in the real world, because it adds some complexity to the project and the likelihood of replacing the backend at some point is very low in my opinion.
+    However, I would definitely recommend hiding the dtos from the frontend by configuring the module boundaries in a smart way.
 </p>
 
 {% set repo = 'HaasStefan/ngrx-leaky-backends' %}
