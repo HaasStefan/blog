@@ -1,0 +1,206 @@
+---
+title: Architecting an Nx Workspace with an NgRx Store
+subtitle: Using module boundaries, hexagonal architecture and modern NgRx
+date: 2023-08-09
+tags: featured
+description: NgRx is the most popular state management library for Angular. You find it a lot in enterprise projects. Nx is also used a lot in enterprise projects. So how do you architect an Nx Workspace with NgRx?
+keywords:
+  [
+    angular,
+    nx,
+    nx-workspace,
+    module-boundaries,
+    ngrx,
+    redux,
+    architecture
+  ]
+image: https://i.imgur.com/gc6t2n6.png
+imageAlt: cover-image
+layout: post
+---
+
+
+<p>
+    {{ description }}
+    <br>
+    But first of all, let's talk about the why and when you should use NgRx.
+</p>
+
+{% set subHeading = 'Why and when should you use NgRx?' %}
+{% include 'post-elements/sub-heading.njk' %}
+
+<p>
+    It is often heavily debated if NgRx is overkill and actually necessary for a project, because of its complexity, which is not beneficial for every project, but a key to success for a few. <br> <br>
+    <b>The short answer</b>: It depends. <br> <br>
+    <b>The long answer</b>: It depends on the size of your project, the complexity of your state and the number of developers working on the project. <br>
+    
+</p>
+
+{% set subSubHeading = 'The even longer answer:' %}
+{% include 'post-elements/sub-sub-heading.njk' %}
+
+<p>
+    Most applications actually don't need a fully-fledged Redux store like NgRx - <b>until they do!</b>. <br>
+    Usually, starting out with some simple service-based statemanagement is enough at first and you might be lucky and never need anything else.
+    In fact, many applications never need anything else. 
+
+    </p>
+
+    {% set image = 'https://i.imgur.com/Qzw2vl4.png' %}
+    {% set imageAlt = 'service-based state management' %} 
+    {% set maxHeight = undefined %}
+    {% set imageCaption = 'Simple service-based State Management' %}
+    {% include 'post-elements/image.njk' %}
+    <p>
+
+    But sometimes you will run into a situation where you need to share state between services that are not directly related to each other.
+    Hence, the number of dependencies between your services will increase over time and that might lead to circular dependencies in the end. 
+    This is a common problem with service-based state management and it is hard to solve once you are in that situation.
+</p>
+
+
+
+{% set image = 'https://i.imgur.com/iJLJ6iX.png' %}
+{% set imageAlt = 'service-based state management' %} 
+{% set maxHeight = undefined %}
+{% set imageCaption = 'Circular Dependencies' %}
+{% include 'post-elements/image.njk' %}
+
+<p>
+    One way to avoid such circular dependencies is to duplicate the state and possible also the logic that is related to that state. 
+    On the one hand, this will solve the circular dependency problem but on the other hand, it will lead to a lot of code duplication and inconsistencies in your state.
+    Additionaly, it will be hard to keep track of all the different places where the state is used and updated. 
+    This is also an obvious violation of the DRY (Don't Repeat Yourself) principle. <br>
+    If you would try to synchronize the state between the different services, you would either end up with circular dependencies again or you would have to introduce your custom event system, which is not a good idea either.
+</p>
+
+
+{% set image = 'https://i.imgur.com/f8ppaEy.png' %}
+{% set imageAlt = 'service-based state management' %} 
+{% set maxHeight = undefined %}
+{% set imageCaption = 'State Duplication and Inconsistency' %}
+{% include 'post-elements/image.njk' %}
+
+<p>
+    The easiest and most viable solution to this problem is to introduce a global state management library like NgRx. What seemed like overkill at first, now becomes a necessity that brings simplicity into a complex situation.
+    NgRx will help you to keep track of your state and it will also help you to keep your state consistent. 
+</p>
+
+{% set image = 'https://i.imgur.com/Dzt9p8D.png' %}
+{% set imageAlt = 'global state management' %} 
+{% set maxHeight = undefined %}
+{% set imageCaption = 'Global State Management' %}
+{% include 'post-elements/image.njk' %}
+
+<p>
+    If you are not familiar with NgRx and Redux, I recommend you to read the 
+    {% set link = 'https://ngrx.io/guide/store' %}
+    {% set linkText = 'official documentation' %}
+    {% include 'post-elements/hyper-link.njk' %} first.
+</p>
+
+{% set subHeading = 'Nx Architecture for NgRx' %}
+{% include 'post-elements/sub-heading.njk' %}
+
+{% set subSubHeading = 'Module Boundaries' %}
+{% include 'post-elements/sub-sub-heading.njk' %}
+
+<p>
+    If you are not familiar with the {% set link = 'https://ng-journal.com/blog/2022-12-19-the-enterprise-monorepo-angular-patterns/' %}
+    {% set linkText = 'Enterprise Monorepo Pattern' %}
+    {% include 'post-elements/hyper-link.njk' %}, I would recommend reading about it first. 
+    Reason for that is, that the Nx workspace architecture is based on the Enterprise Monorepo Pattern but with NgRx specific changes.
+
+    <br>
+    Instead of the traditional <b>data-access</b> library, containing logic, state, services and entities, we will split it up into <b>state</b> and <b>data-access</b> libraries. 
+    Whereas the <b>state</b> library will only contain the NgRx specifics like actions, reducers, effects and selectors, the <b>data-access</b> library will only contain data services and entities.
+</p>
+
+{% set image = 'https://i.imgur.com/zSYC6ET.png' %}
+{% set imageAlt = 'nx architecture' %} 
+{% set maxHeight = undefined %}
+{% set imageCaption = 'Nx Workspace Architecture' %}
+{% include 'post-elements/image.njk' %}
+
+
+
+<p>
+    Additionally, we will introduce a <b>dtos</b> library that will contain all the data transfer objects that are used to communicate with the backend. 
+    This is especially useful, because we can make use of the 
+    {% set code = '@nrwl/nx/enforce-module-boundaries' %}
+    {% include 'post-elements/inline-code.njk' %} linting rule to make sure that dtos are only used in the data-access library and nowhere else. 
+    Such that the backend implementation does not leak into the frontend.
+</p>
+
+  {% set code %}"rules": {
+    "@nx/enforce-module-boundaries": [
+      "error",
+      {
+        "enforceBuildableLibDependency": true,
+        "allow": [],
+        "depConstraints": [
+          {
+            "sourceTag": "type:app",
+            "onlyDependOnLibsWithTags": ["type:feature", "type:routes", "type:ui", "type:state", "type:util"]
+          },
+          {
+            "sourceTag": "type:routes",
+            "onlyDependOnLibsWithTags": ["type:feature", "type:util", "type:state"]
+          },
+          {
+            "sourceTag": "type:feature",
+            "onlyDependOnLibsWithTags": ["type:ui", "type:state", "type:util"]
+          },
+          {
+            "sourceTag": "type:ui",
+            "onlyDependOnLibsWithTags": ["type:util"]
+          },
+          {
+            "sourceTag": "type:util",
+            "onlyDependOnLibsWithTags": []
+          },
+          {
+            "sourceTag": "type:state",
+            "onlyDependOnLibsWithTags": ["type:util", "type:data-access"]
+          },
+          {
+            "sourceTag": "type:data-access",
+            "onlyDependOnLibsWithTags": ["type:util", "type:dtos"]
+          },
+          {
+            "sourceTag": "type:dtos",
+            "onlyDependOnLibsWithTags": []
+          }
+        ]
+      }
+    ]
+  }{% endset %}
+  {% set lang = 'json' %}
+  {% set caption = '.eslintrc.json' %}
+  {% include 'post-elements/code.njk' %}
+
+{% set subSubHeading = 'Creating a Feature' %}
+{% include 'post-elements/sub-sub-heading.njk' %}
+
+{% set subHeading = 'Hexagonal Architecture' %}
+{% include 'post-elements/sub-heading.njk' %}
+
+{% set image = 'https://i.imgur.com/BH3Gm9q.png' %}
+{% set imageAlt = 'hexagonal architecture' %} 
+{% set maxHeight = undefined %}
+{% set imageCaption = 'Hexagonal Architecture' %}
+{% include 'post-elements/image.njk' %}
+
+<p>
+
+</p>
+
+{% set subHeading = 'Modern NgRx' %}
+{% include 'post-elements/sub-heading.njk' %}
+
+<p>
+
+</p>
+
+{% set repo = 'HaasStefan/ngrx-leaky-backends' %}
+{% include 'post-elements/repo.njk' %}
