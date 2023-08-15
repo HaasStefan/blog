@@ -5,6 +5,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      screens: {
+        "ze": "1px",
+      },
       colors: {
         "atom-dark": "#282c34",
         "atom-orange": "#d19a66",
