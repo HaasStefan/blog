@@ -18,6 +18,19 @@
     </h3>
     <p class="ze:text-center md:text-start">{{ workshopDescription }}</p>
 
+
+    <div class="ze:flex md:hidden w-full flex-row items-end mt-4">
+        <div class="flex w-full flex-row justify-around">
+          <div>
+            <i class="fa-solid fa-clock mr-1 text-{{color}}"></i> {{ workshopDuration }}
+          </div>
+          <div>
+            <i class="fa-solid fa-location-dot mr-1 text-{{color}}"></i> Remote &
+            On-Site
+          </div>
+        </div>
+      </div>
+
     <a
       href="{{ workshopLink }}"
       class="w-full flex ze:justify-center md:justify-start"
@@ -38,17 +51,6 @@
       </div>
       <div>
         <i class="fa-solid fa-location-dot mr-2 text-{{color}}"></i> Remote &
-        On-Site
-      </div>
-    </div>
-  </div>
-  <div class="ze:flex md:hidden w-full flex-row items-end mt-2">
-    <div class="flex w-full flex-row justify-around">
-      <div>
-        <i class="fa-solid fa-clock mr-1 text-{{color}}"></i> {{ workshopDuration }}
-      </div>
-      <div>
-        <i class="fa-solid fa-location-dot mr-1 text-{{color}}"></i> Remote &
         On-Site
       </div>
     </div>
