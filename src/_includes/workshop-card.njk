@@ -1,0 +1,30 @@
+<div class="bg-atom-dark text-white rounded-lg">
+  <a
+    href="{{ workshopLink }}"
+    class="p-4 px-5 flex flex-row gap-6 items-center"
+  >
+    <img
+      src="{{ image }}"
+      alt="{{ imageAlt }}"
+      class="ze:w-10 ze:h-10 md:w-16 md:h-16"
+    />
+    <div class="w-full">
+      <h3
+        class="flex-grow text-2xl font-bold ze:mb-2 md:mb-4 ze:text-center md:text-start"
+      >
+        {{ workshopTitle }}
+      </h3>
+
+      <div class="w-full flex flex-row gap-6">
+        <div>
+          <i class="fa-solid fa-location-dot mr-1 text-{{ color }}"></i> Remote
+          & On-Site
+        </div>
+        <div>
+          <i class="fa-solid fa-clock mr-1 text-{{ color }}"></i>
+          {{ workshopDuration }}
+        </div>
+      </div>
+    </div>
+  </a>
+</div>

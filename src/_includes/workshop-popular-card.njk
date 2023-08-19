@@ -12,7 +12,9 @@
     <h3
       class="flex-grow text-2xl font-bold ze:mb-2 md:mb-4 ze:text-center md:text-start"
     >
-      {{ workshopTitle }}
+      <a href="{{ workshopLink }}">
+        {{ workshopTitle }}
+      </a>
     </h3>
     <p class="ze:text-center md:text-start">{{ workshopDescription }}</p>
 
@@ -43,7 +45,7 @@
   <div class="ze:flex md:hidden w-full flex-row items-end mt-2">
     <div class="flex w-full flex-row justify-around">
       <div>
-        <i class="fa-solid fa-clock mr-1 text-{{color}}"></i> {{ days }} days
+        <i class="fa-solid fa-clock mr-1 text-{{color}}"></i> {{ workshopDuration }}
       </div>
       <div>
         <i class="fa-solid fa-location-dot mr-1 text-{{color}}"></i> Remote &
