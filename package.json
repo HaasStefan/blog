@@ -30,6 +30,7 @@
   },
   "devDependencies": {
     "@11ty/eleventy-plugin-rss": "^1.2.0",
+    "@tailwindcss/aspect-ratio": "^0.4.2",
     "autoprefixer": "^10.4.13",
     "esbuild": "^0.15.12",
     "postcss-cli": "^10.0.0",
