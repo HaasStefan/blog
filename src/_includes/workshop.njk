@@ -4,8 +4,10 @@ layout: "base.njk"
 
 <div class="sm:flex sm:justify-center ze:mt-3 md:mt-6">
   <div class="max-w-screen-lg lg:max-w-screen-xl p-4 w-full">
-    <div class="flex ze:flex-col md:flex-row items-center justify-center ze:gap-3 md:gap-10 ze:mb-16 md:mb-20">
-     <div>
+    <div
+      class="flex ze:flex-col md:flex-row items-center justify-center ze:gap-3 md:gap-10 ze:mb-16 md:mb-28"
+    >
+      <div>
         {% if secondaryImage %}
         <img
           src="{{ secondaryImage }}"
@@ -13,43 +15,99 @@ layout: "base.njk"
           class="ze:max-h-[5rem] md:max-h-[10rem] ze:mr-0 md:mr-4"
         />
         {% else %}
-  
-        <img src="{{ image }}" alt="{{ imageAlt }}" class="ze:max-h-[5rem] md:max-h-[10rem] ze:mr-0 md:mr-4" />
+
+        <img
+          src="{{ image }}"
+          alt="{{ imageAlt }}"
+          class="ze:max-h-[5rem] md:max-h-[10rem] ze:mr-0 md:mr-4"
+        />
         {% endif %}
-     </div>
+      </div>
 
       <div class="flex flex-col justify-center">
-        <h1 class="font-bold ze:text-5xl md:text-6xl mb-2 text-center">{{ workshopTitle }}</h1>
-        <h2 class="ze:text-4xl md:text-4xl text-{{ color }} font-bold text-center">
+        <h1 class="font-bold ze:text-5xl md:text-6xl mb-2 text-center">
+          {{ workshopTitle }}
+        </h1>
+        <h2
+          class="ze:text-4xl md:text-4xl text-{{ color }} font-bold text-center"
+        >
           Workshop
         </h2>
       </div>
     </div>
 
-    <h3 class="ze:hidden font-bold text-4xl mb-8 text-center">Curriculum</h3>
-    <div class="flex ze:flex-col md:flex-row gap-6 ze:mb-8 md:mb-28">
-       {% include 'workshop-curriculum.njk' %}
-    </div>
+    <h3 class="font-bold ze:text-3xl md:text-4xl ze:mb-4 md:mb-8 text-center">Next Public Workshop</h3>
 
-    <div class="ze:mb-8 md:mb-28">
-      {% include 'testimonials.njk' %}
+    <div class="flex justify-center ze:mb-8 md:mb-8">
+      {% if not nextPublicWorkshop %}
+        <span class="text-xl bg-{{color}} text-white rounded-xl p-2 px-5">To Be Anounced</span>
+      {% endif %}
     </div>
+  </div>
+</div>
 
-    <div class="ze:mb-8 md:mb-28">
-      {% include 'trainer-card.njk' %}
+<div class="sm:flex sm:justify-center bg-white ze:mb-8 md:mb-12 py-12">
+  <div class="max-w-screen-lg lg:max-w-screen-xl p-4 w-full">
+    <div class="grid ze:grid-cols-1 md:grid-cols-2 gap-12 px-2 ">
+      <p class="text-lg">
+        All of our workshops are designed to be hands-on, interactive, and
+        engaging. We believe that the best way to learn is by doing, so we
+        provide a mix of instruction and exercises to help you learn the
+        material and apply it to your work.
+        <br />
+        <br />
+
+        The workshops are designed to be flexible and can be customized to meet
+        your teams needs. We can also combine workshops to create a multi-day
+        training program.
+      </p>
+
+      <div class="text-xl flex justify-center">
+        <div class="flex flex-col justify-center gap-4">
+          <span>✅ <strong>Hands-on Exercises</strong> </span>
+          <span>✅ <strong>Case Studies</strong> </span>
+          <span>✅ <strong>Interactive</strong> </span>
+          <span>✅ <strong>Remote & In-House</strong> </span>
+        </div>
+      </div>
     </div>
+  </div>
+</div>
 
-    
-    <div class="ze:mb-8 md:mb-28">
-      <h2 class="font-bold text-center text-3xl mb-8">Frequently Asked Questions</h2>
+<div class="sm:flex sm:justify-center">
+  <div class="max-w-screen-lg lg:max-w-screen-xl p-4 w-full">
+
+    <h3 class="font-bold text-4xl ze:mb-4 md:mb-8 text-center">Curriculum</h3>
+    <div class="flex ze:flex-col justify-center md:flex-row gap-6 ze:mb-8 md:mb-12">
+      <div class="basis-1/8"></div>
+      <div class="basis-3/4">{% include 'workshop-curriculum.njk' %}</div>
+      <div class="basis-1/8"></div>
+    </div>
+  </div>
+</div>
+
+<div class="sm:flex sm:justify-center bg-white ze:mb-8 md:mb-12 pt-12">
+  <div class="max-w-screen-lg lg:max-w-screen-xl p-4 w-full">
+    <div class="">{% include 'testimonials.njk' %}</div>
+  </div>
+</div>
+
+<div class="sm:flex sm:justify-center">
+  <div class="max-w-screen-lg lg:max-w-screen-xl p-4 w-full">
+    <div class="ze:mb-8 md:mb-12">{% include 'trainer-card.njk' %}</div>
+
+    <div class="ze:mb-4 md:mb-8">
+      <h2 class="font-bold text-center text-3xl mb-8">
+        Frequently Asked Questions
+      </h2>
 
       {% include 'faq.njk' %}
     </div>
+  </div>
+</div>
 
-    <div class="mb-4">
-      {% include 'workshop-contact.njk' %}
-    </div>
-
-    </div>
+<div class="sm:flex sm:justify-center bg-white">
+  <div class="max-w-screen-lg lg:max-w-screen-xl p-4 w-full">
+    <div>{% include 'workshop-contact.njk' %}</div>
   </div>
 </div>
