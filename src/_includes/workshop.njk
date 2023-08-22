@@ -2,9 +2,9 @@
 layout: "base.njk"
 ---
 
-<div class="sm:flex sm:justify-center ze:mt-3 md:mt-6 ">
+<div class="sm:flex sm:justify-center ze:mt-3 md:mt-6">
   <div class="max-w-screen-lg lg:max-w-screen-xl p-4 w-full">
-    <div class="flex ze:flex-col md:flex-row items-center justify-center ze:gap-3 md:gap-10 mb-20">
+    <div class="flex ze:flex-col md:flex-row items-center justify-center ze:gap-3 md:gap-10 ze:mb-16 md:mb-20">
      <div>
         {% if secondaryImage %}
         <img
@@ -19,19 +19,36 @@ layout: "base.njk"
      </div>
 
       <div class="flex flex-col justify-center">
-        <h1 class="font-bold ze:text-4xl md:text-6xl mb-2 text-center">{{ workshopTitle }}</h1>
-        <h2 class="ze:text-2xl md:text-4xl text-{{ color }} font-bold text-center">
+        <h1 class="font-bold ze:text-5xl md:text-6xl mb-2 text-center">{{ workshopTitle }}</h1>
+        <h2 class="ze:text-4xl md:text-4xl text-{{ color }} font-bold text-center">
           Workshop
         </h2>
       </div>
     </div>
 
-    <div class="flex ze:flex-col md:flex-row gap-6 ze:mb-8 md:mb-16">
+    <h3 class="ze:hidden font-bold text-4xl mb-8 text-center">Curriculum</h3>
+    <div class="flex ze:flex-col md:flex-row gap-6 ze:mb-8 md:mb-28">
        {% include 'workshop-curriculum.njk' %}
     </div>
 
-    {% include 'trainer-card.njk' %}
+    <div class="ze:mb-8 md:mb-28">
+      {% include 'testimonials.njk' %}
+    </div>
 
+    <div class="ze:mb-8 md:mb-28">
+      {% include 'trainer-card.njk' %}
+    </div>
+
+    
+    <div class="ze:mb-8 md:mb-28">
+      <h2 class="font-bold text-center text-3xl mb-8">Frequently Asked Questions</h2>
+
+      {% include 'faq.njk' %}
+    </div>
+
+    <div class="mb-4">
+      {% include 'workshop-contact.njk' %}
+    </div>
 
     </div>
   </div>

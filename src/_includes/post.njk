@@ -43,10 +43,19 @@ layout: "base.njk"
       <b>Haven't subscribed yet? </b>
       Scroll down and don't miss any new articles anymore.
     </p>
+
+    {% set subHeading = 'Comments' %} {% include 'post-elements/sub-heading.njk'
+    %}
+
+    <script
+      src="https://utteranc.es/client.js"
+      repo="HaasStefan/ng-journal-comments"
+      issue-term="url"
+      theme="github-light"
+      crossorigin="anonymous"
+      async
+    ></script>
   </article>
-</div>
-<div class="flex w-full justify-center">
-  <section class="max-w-screen-lg p-4 ">{% include 'recommendations.njk' %}</section>
 </div>
 
 <script src="/js/share.js"></script>
