@@ -93,7 +93,7 @@ image: "/assets/ng-journal.png"
       {% include 'email.njk' %}
     </section>-->
 
-    <section class="mb-16">
+    <section class="ze:mb-8 md:mb-16">
       <h2 class="text-center font-bold text-3xl mb-8">Featured Articles</h2>
       <ul class="flex-auto flex flex-row flex-wrap">
         {%- for post in collections.featured | reverse -%} {% if
@@ -112,20 +112,18 @@ image: "/assets/ng-journal.png"
     </section>
 
     <section>
-      <div
-        class="flex justify-center items-center lg:mt-8 md:mt-6 mt-6 mb-6 px-4"
-      >
-        <div class="hidden md:block md:basis-1/4"></div>
-        <div class="basis-full md:basis-2/4 flex">
+      <div class="flex justify-center items-center mb-8">
+        <div class="basis-1/4"></div>
+        <div class="ze:basis-2/3 md:basis-1/2 flex">
           <a
             href="/blog"
-            class="w-full text-white bg-gradient-to-br shadow-xl hover:shadow-2xl bg-red-500 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-xl px-5 py-2.5 text-center mr-2 mb-2"
+            class="w-full text-white bg-gradient-to-br shadow-xl hover:shadow-2xl bg-red-500 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-xl px-5 py-2.5 text-center mb-2"
           >
-            <span class="mr-1">Read more</span>
+            <span class="mr-1">All articles</span>
             <i class="fa-solid fa-arrow-up-right-from-square"></i>
           </a>
         </div>
-        <div class="hidden md:block md:basis-1/4"></div>
+        <div class="basis-1/4"></div>
       </div>
     </section>
   </div>
