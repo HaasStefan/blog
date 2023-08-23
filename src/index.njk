@@ -3,70 +3,92 @@ title: NG Journal
 description: NG Journal is a blog focusing on Angular, Typescript and Javascript.
 keywords: ng-journal ng journal ngjournal stefan-haas stefan haas angular journal blog articles programming angular javascript js typescript ts nx ngrx rxjs webdev frontend
 layout: "base.njk"
-image: '/assets/ng-journal.png'
+image: "/assets/ng-journal.png"
 ---
-
 
 <div class="sm:flex sm:justify-center mt-3">
   <div class="max-w-screen-lg lg:max-w-screen-xl p-4">
-    <h1 class="font-bold text-4xl mb-2 text-center">The Angular Journal</h1>
-    <h2 class="text-xl text-neutral-600 font-bold mb-8 text-center">
-      Covering advanced enterprise Angular for professionals.
+    <h1 class="font-bold ze:text-4xl md:text-6xl mb-2 mt-2 text-center">
+      The <span class="text-red-500">Angular</span> Journal
+    </h1>
+    <h2
+      class="ze:text-2xl md:text-3xl text-neutral-600 font-bold mb-8 text-center"
+    >
+      Beyond the Fundamentals
     </h2>
 
-    <section id="tags" class="flex gap-4 mb-12 flex-wrap justify-center">
-      <div
-        class="flex items-center gap-1 rounded-lg p-2 px-4 bg-white"
-      >
-        <img src="/assets/angular.png" width="35" height="35" />
-        <span class="font-semibold text-gray-800">Angular</span>
+    <div class="ze:hidden lg:flex justify-center items-center mb-4">
+      <div class="basis-1/8"></div>
+      <div class="ze:basis-2/3 basismd:basis-1/2 flex">
+        <video class="rounded-2xl" controls>
+          <source src="/assets/intro.mp4" type="video/mp4" />
+        </video>
       </div>
+      <div class="basis-1/8"></div>
+    </div>
+
+    <div class="ze:flex lg:hidden ze:px-0 md:px-2 mb-4">
+      <video class="rounded-2xl bg-black" controls>
+        <source src="/assets/intro.mp4" type="video/mp4" />
+      </video>
+    </div>
+
+    <div class="w-full flex justify-center mb-4">
+      <div class="ze:basis-2/3 md:basis-1/4">
+        {% set mdJustify="around" %} {% include 'contacts.njk' %}
+      </div>
+    </div>
+
+    <div class="flex justify-center items-center ze:mb-8 md:mb-16">
+      <div class="basis-1/4"></div>
+      <div class="ze:basis-2/3 md:basis-1/2 flex">
+        <a
+          href="/contact"
+          class="w-full text-white bg-gradient-to-br shadow-xl hover:shadow-2xl bg-red-500 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-xl px-5 py-2.5 text-center mb-2"
+        >
+          <span class="mr-1">Get in touch</span>
+          <i class="fa-solid fa-arrow-up-right-from-square"></i>
+        </a>
+      </div>
+      <div class="basis-1/4"></div>
+    </div>
+
+    <section class="mb-8">
+      <h2 class="text-center font-bold text-3xl mb-8">Workshops</h2>
 
       <div
-        class="flex items-center gap-1 rounded-lg p-2 px-4 bg-white"
-      >
-        <img src="/assets/ngrx.svg" width="35" height="35" />
-        <span class="font-semibold text-gray-800">NgRx</span>
-      </div>
-
-      <div
-        class="flex items-center gap-2  rounded-lg p-2 px-4 bg-white"
-      >
-        <img src="/assets/rxjs.png" width="30" height="30" />
-        <span class="font-semibold text-gray-800">RxJS</span>
-      </div>
-
-      <div
-        class="flex items-center gap-1  rounded-lg p-2 px-4 bg-white"
-      >
-        <img src="/assets/nx.png" height="35" width="35" />
-        <span class="font-semibold text-gray-800">Nx</span>
-      </div>
-
-
-      <div
-        class="flex items-center gap-1 rounded-lg p-2 px-4 bg-white"
-      >
-        ...
-      </div>
+      class="flex flex-col w-full ze:gap-6 md:gap-4 mb-8  md:px-16 lg:px-24 justify-center items-center"
+    >
+      {% for workshop in collections.popular %} {% set
+      image=workshop.data.image %} {% set imageAlt=workshop.data.imageAlt %}
+      {% set workshopTitle=workshop.data.workshopTitle %} {% set
+      workshopDescription=workshop.data.workshopDescription %} {% set
+      workshopLink=workshop.data.workshopLink %} {% set
+      workshopDuration=workshop.data.workshopDuration %} {% set
+      color=workshop.data.color %} {% include 'workshop-popular-card.njk' %}
+      {% endfor %}
+    </div>
     </section>
 
-    <section id="index-email" class="rounded-lg bg-atom-dark text-white p-4 px-4 md:p-6 md:px-12 shadow-xl mb-16">
+    
+    
+
+    <!--<section
+      id="index-email"
+      class="rounded-lg bg-atom-dark text-white p-4 px-4 md:p-6 md:px-12 shadow-xl mb-16"
+    >
       {% include 'email.njk' %}
-    </section>
+    </section>-->
 
-    <section class="mb-16">
-      <h2 class="text-center font-bold text-3xl mb-8">
-        Featured Articles
-      </h2>
+    <section class="ze:mb-8 md:mb-16">
+      <h2 class="text-center font-bold text-3xl mb-8">Featured Articles</h2>
       <ul class="flex-auto flex flex-row flex-wrap">
-        {%- for post in collections.featured | reverse -%}
-        {% if collections.featured | length | threeOrMore %}
-        <li class="md:basis-1/2 lg:basis-1/3 p-2">
-        {% else %}
+        {%- for post in collections.featured | reverse -%} {% if
+        collections.featured | length | threeOrMore %}
+        <li class="md:basis-1/2 lg:basis-1/3 p-2">{% else %}</li>
+
         <li class="md:basis-1/2 md:p-4 py-2 md:py-0">
-        {% endif %}
-{% set title = post.data.title %} {% set description =
+          {% endif %} {% set title = post.data.title %} {% set description =
           post.data.description %} {% set date = post.data.date %} {% set image
           = post.data.image %} {% set imageAlt = post.data.imageAlt %} {% set
           keywords = post.data.keywords %} {% set link = post.url %} {% include
@@ -74,25 +96,21 @@ image: '/assets/ng-journal.png'
         </li>
         {% endfor %}
       </ul>
-
-
     </section>
 
     <section>
-      <div
-        class="flex justify-center items-center lg:mt-8 md:mt-6 mt-6 mb-6 px-4"
-      >
-        <div class="hidden md:block md:basis-1/4"></div>
-        <div class="basis-full md:basis-2/4 flex">
+      <div class="flex justify-center items-center mb-8">
+        <div class="basis-1/4"></div>
+        <div class="ze:basis-2/3 md:basis-1/2 flex">
           <a
             href="/blog"
-            class="w-full text-white bg-gradient-to-br shadow-xl hover:shadow-2xl bg-red-500 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-xl px-5 py-2.5 text-center mr-2 mb-2"
+            class="w-full text-white bg-gradient-to-br shadow-xl hover:shadow-2xl bg-red-500 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-xl px-5 py-2.5 text-center mb-2"
           >
-            <span class="mr-1">Read more</span>
+            <span class="mr-1">All articles</span>
             <i class="fa-solid fa-arrow-up-right-from-square"></i>
           </a>
         </div>
-        <div class="hidden md:block md:basis-1/4"></div>
+        <div class="basis-1/4"></div>
       </div>
     </section>
   </div>

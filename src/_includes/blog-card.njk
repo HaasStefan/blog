@@ -1,9 +1,9 @@
 <a href="{{link | url }}">
-  <article class="rounded-lg shadow-xl group bg-white hover:shadow-2xl transition ease-in-out hover:-translate-y-3">
+  <article class="rounded-xl shadow-xl group  bg-white text-neutral-900 hover:shadow-2xl transition ease-in-out hover:-translate-y-3">
     <img src="{{ image }}" alt="{{ imageAlt }}"  class="rounded-t-lg" />
     <div class="p-4 w-full">
-        <h2 class="font-bold text-xl mb-1 group-hover:text-red-500">{{ title }}</h2>
-        <summary class="min-h-24 text-gray-700">{{ description  | truncate }}</summary>
+        <h2 class="font-semibold text-xl mb-2 group-hover:text-red-500 ">{{ title }}</h2>
+        <summary class="min-h-24">{{ description  | truncate }}</summary>
        
         <div class=" w-full text-center mt-4 font-medium text-sm">Published on {{ date | postDate }}</div>
     </div>

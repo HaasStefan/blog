@@ -1,0 +1,79 @@
+---
+layout: "base.njk"
+title: NG Journal - Workshops
+image: "/assets/ng-journal.png"
+description: "
+    Workshops for Angular, Nx, Blazor and more. 
+    Stefan Haas is a trainer, consultant from Austria focusing on Angular.
+"
+keywords: ["Nx Workshop", "Workshop", "Angular", "Seminar", "Training", "Angular Workshops", "Angular Training"]
+---
+
+<div class="sm:flex sm:justify-center mt-6">
+  <div class="max-w-screen-lg lg:max-w-screen-xl p-4 w-full">
+    <h1 class="font-bold text-6xl mb-2 text-center">Workshops</h1>
+    <h2 class="text-lg text-neutral-700 font-bold mb-10 text-center">
+      For <span class="text-red-500 text-2xl px-1">Angular</span> developers
+    </h2>
+
+    <div class="ze:mb-4 md:mb-10 ze:px-4 md:px-36 lg:px-64">
+      <div class="w-full">
+        <span class="text-5xl font-bold text-red-500 italic">"</span>
+      </div>
+      <p class="text-center text-lg px-2">
+        All of our workshops are a mix of theory and practice. We are doing
+        hands-on exercises to make sure you can apply what you learned right
+        away. We are offering workshops for Angular, Nx, RxJS and more.
+        And if you are looking for a custom workshop, we are happy to help.
+        If you are interested in a workshop, please get in touch with us.
+      </p>
+      <div class="w-full flex flex-row-reverse">
+        <span class="text-5xl font-bold text-red-500 italic">"</span>
+      </div>
+    </div>
+
+    <div class="mb-16 w-full">
+      <h2 class="text-center font-bold text-3xl mb-8">Popular Workshops</h2>
+
+      <div
+        class="flex flex-col w-full ze:gap-6 md:gap-4 mb-8  md:px-16 lg:px-24 justify-center items-center"
+      >
+        {% for workshop in collections.popular %} {% set
+        image=workshop.data.image %} {% set imageAlt=workshop.data.imageAlt %}
+        {% set workshopTitle=workshop.data.workshopTitle %} {% set
+        workshopDescription=workshop.data.workshopDescription %} {% set
+        workshopLink=workshop.data.workshopLink %} {% set
+        workshopDuration=workshop.data.workshopDuration %} {% set
+        color=workshop.data.color %} {% include 'workshop-popular-card.njk' %}
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="mb-16 w-full">
+      <h2 class="text-center font-bold text-3xl mb-8">All Workshops</h2>
+
+      <div class="grid lg:grid-cols-2 xl:grid-cols-3 gap-6  md:px-16 lg:px-24">
+        {% for workshop in collections.workshops %} {% set
+        image=workshop.data.image %} {% set imageAlt=workshop.data.imageAlt %}
+        {% set workshopTitle=workshop.data.workshopTitle %} {% set
+        workshopDescription=workshop.data.workshopDescription %} {% set
+        workshopLink=workshop.data.workshopLink %} {% set
+        workshopDuration=workshop.data.workshopDuration %} {% set
+        color=workshop.data.color %} {% include 'workshop-card.njk' %}
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="mb-8 w-full">
+      <h2 class="text-center font-bold text-3xl mb-8">Upcoming Public Workshops</h2>
+
+      <div class="w-full flex justify-center">
+        <div
+          class="text-3xl font-bold bg-red-500 text-white p-4 px-8 rounded-xl text-center"
+        >
+          Coming soon...
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

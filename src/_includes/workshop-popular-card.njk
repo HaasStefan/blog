@@ -1,0 +1,58 @@
+<div
+  class="flex-1 rounded-lg w-full px-4 bg-atom-dark text-white ze:p-3 md:p-6 md:px-12 shadow-xl flex ze:flex-col md:flex-row ze:gap-2 md:gap-10 items-center"
+>
+  <div class="flex-shrink">
+    <img
+      src="{{ image }}"
+      alt="{{ imageAlt }}"
+      class="ze:w-20 ze:h-20 md:w-32 md:h-32"
+    />
+  </div>
+  <div>
+    <h3
+      class="flex-grow text-2xl font-bold ze:mb-2 md:mb-4 ze:text-center md:text-start"
+    >
+      <a href="{{ workshopLink }}">
+        {{ workshopTitle }}
+      </a>
+    </h3>
+    <p class="ze:text-center md:text-start">{{ workshopDescription }}</p>
+
+
+    <div class="ze:flex md:hidden w-full flex-row items-end mt-4">
+        <div class="flex w-full flex-row justify-around">
+          <div>
+            <i class="fa-solid fa-clock mr-1 text-{{color}}"></i> {{ workshopDuration }}
+          </div>
+          <div>
+            <i class="fa-solid fa-location-dot mr-1 text-{{color}}"></i> Remote &
+            On-Site
+          </div>
+        </div>
+      </div>
+
+    <a
+      href="{{ workshopLink }}"
+      class="w-full flex ze:justify-center md:justify-start"
+    >
+      <button
+        class="mt-4  text-white hover:text-atom-dark bg-{{color}} font-semibold py-2 px-4 rounded"
+      >
+        Learn more
+        <i class="fa-solid fa-arrow-right-from-bracket ml-2"></i>
+      </button>
+    </a>
+  </div>
+  <div class="ze:hidden md:flex flex-1 flex-col items-end">
+    <div class="flex flex-col gap-4 justify-evenly text-lg">
+      <div>
+        <i class="fa-solid fa-clock mr-2 text-{{color}}"></i>
+        {{ workshopDuration }}
+      </div>
+      <div>
+        <i class="fa-solid fa-location-dot mr-2 text-{{color}}"></i> Remote &
+        On-Site
+      </div>
+    </div>
+  </div>
+</div>

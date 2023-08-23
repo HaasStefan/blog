@@ -1,0 +1,23 @@
+<div class="flex flex-col gap-2 w-full">
+  {% for day in curriculum %}
+
+    <div
+    class="bg-{{
+      color
+    }} text-white shadow-xl w-fit font-bold rounded-xl p-4 px-8 mb-2 mt-6"
+  >
+    Day {{ loop.index }}
+  </div>
+
+  {% for module in day %}
+  <div class="">
+    <div class="bg-white shadow-xl rounded-lg p-3 text-gray-700 w-full">
+      <span class="text-{{ color }} font-bold text-lg mr-2"
+        >{{ loop.index }}.</span
+      >
+      <span class="font-bold text-lg mr-4">{{ module.title }}</span>
+      <span class="text-gray-500">{{ module.description }}</span>
+    </div>
+  </div>
+  {% endfor %} {% endfor %}
+</div>
