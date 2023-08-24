@@ -87,14 +87,23 @@ layout: "base.njk"
 </div>
 
 <div class="sm:flex sm:justify-center bg-white ze:mb-8 md:mb-12 pt-12">
-  <div class="max-w-screen-lg lg:max-w-screen-xl p-4 w-full">
-    <div class="">{% include 'testimonials.njk' %}</div>
+  <div class="max-w-screen-lg lg:max-w-screen-xl px-4 w-full">
+    <div>{% include 'testimonials.njk' %}</div>
+
   </div>
 </div>
 
 <div class="sm:flex sm:justify-center">
-  <div class="max-w-screen-lg lg:max-w-screen-xl p-4 w-full">
+  <div class="max-w-screen-lg lg:max-w-screen-xl px-4 w-full">
+    
+    <div class="ze:mb-8 md:mb-12">
+      {{ content | safe }}
+    </div>
+
+
     <div class="ze:mb-8 md:mb-12">{% include 'trainer-card.njk' %}</div>
+    
+
 
     <div class="ze:mb-4 md:mb-8">
       <h2 class="font-bold text-center text-3xl mb-8">
