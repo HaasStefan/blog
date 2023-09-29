@@ -1,0 +1,378 @@
+---
+title: Feature Flags in Angular 16
+subtitle: Manifests, APP_INITIALIZER, Structural Directives, Functional Guards and Standalone APIs
+date: 2023-09-29
+tags: featured
+description: Feature flags are a great way to enable or disable features at runtime. This can be useful for A/B testing, canary releases, or just to enable or disable features for specific users. In this article, I will show you how to implement feature flags in Angular 16. 
+keywords:
+  [
+    angular,
+    nx,
+    nx-workspace,
+    feature-flags,
+    manifests,
+    app-initializer,
+    structural-directives,
+    functional-guards,
+    standalone-apis,
+    can-match
+  ]
+image: https://i.imgur.com/KKimNzg.png
+imageAlt: cover-image
+layout: post
+---
+
+<p>
+    {{ description }}
+    <br>
+    You will learn how to implement feature flags in Angular 16 using manifests, APP_INITIALIZER, structural directives, functional guards, and standalone APIs.
+</p>
+
+{% set subHeading = 'What are Feature Flags?' %}
+{% include 'post-elements/sub-heading.njk' %}
+
+<p>
+  Feature flags are actually really simple. Basically a feature flag is just a boolean value that can be used to enable or disable a certain feature at runtime. 
+  Think of a gradual Go-Live of an app where you want to enable finished features, while still working on other unfinished features which are disabled for the users.
+
+  <br>
+  <br>
+
+  <b>Example:</b>
+  <br>
+
+  <i>Feature A</i> is finished.
+  <br>
+  <i>Feature B</i> is still in development.
+
+  <br>
+  <br>
+
+  <b>Result:</b>
+  <br>
+
+  <i>Feature A</i> is enabled for all users.
+  <br>
+  <i>Feature B</i> is disabled for all users.
+
+
+  <br>
+  <br>
+  There are even more use cases for feature flags, but in this article we are assuming that we want to enable or disable features for all users.
+</p>
+
+{% set subHeading = 'Implementation' %}
+{% include 'post-elements/sub-heading.njk' %}
+
+<p>
+  For the implementation, I used one of my bigger demo apps, which is an insurance portal that manages contract, claims, complaints and customers. 
+  In this app, I want to be able to enable or disable each feature individually.
+  For example, I want to be able to disable the <b>claim-create</b> feature in case I am still working on it.
+</p>
+
+{% set image = 'https://i.imgur.com/hbArQVp.png' %}
+{% set imageAlt = 'insurance portal' %} 
+{% set maxHeight = undefined %}
+{% set imageCaption = 'Insurance Portal' %}
+{% include 'post-elements/image.njk' %}
+
+<p>
+  In order to implement feature flags, we need to create a static manifest file in the app's assets folder.
+  This manifest file contains all the feature flags and their corresponding values.
+  Note, that a manifest file is not required for feature flags, but it is a good way to keep track of all the feature flags and their values when the feature flags apply to all users.
+  When doing A/B Testing, you would get the feature flags from a remote server instead of a static manifest file for example.
+</p>
+
+{% set code %}{
+  "customer-list": true,
+  "customer-details": true,
+
+  "complaint-create": true,
+  "complaint-list": true,
+  "complaint-details": true,
+
+  "contract-edit": true,
+  "contract-create": true,
+  "contract-list": true,
+  "contract-details": true,
+
+  "claim-create": true,
+  "claim-list": true,
+  "claim-details": true
+}{% endset %}
+{% set lang = 'json' %}
+{% set caption = 'feature-flags.manifest.json' %}
+{% include 'post-elements/code.njk' %}
+
+<p>
+  The manifest resembles a record of all the feature flags and their boolean values. For this, we also have to create corresponding types.
+</p>
+
+{% set code %}export const featureFlags = [
+'customer-list',
+'customer-details',
+'complaint-create',
+'complaint-list',
+'complaint-details',
+'contract-edit',
+'contract-create',
+'contract-list',
+'contract-details',
+'claim-create',
+'claim-list',
+'claim-details',
+] as const;
+
+export type FeatureFlag = (typeof featureFlags)[number];
+export type FeatureFlags = Record<FeatureFlag, boolean>;
+{% endset %}
+{% set lang = 'ts' %}
+{% set caption = 'feature-flags.ts' %}
+{% include 'post-elements/code.njk' %}
+
+<p>
+  Next, we have to create some service which is responsible for loading the manifest file and storing the feature flags in some state and providing a method to determine if a given feature flag is enabled.
+  In my example I used a data service for basic fetching and a facade that is responsible for the state management. So, I created a 
+  {% set code = 'FeatureFlagsDataService' %}
+  {% include 'post-elements/inline-code.njk' %} and a 
+  {% set code = 'FeatureFlagsFacadeService' %}
+  {% include 'post-elements/inline-code.njk' %}. Whereas the latter provides two important methods, which are 
+  {% set code = 'loadFeatureFlags' %}
+  {% include 'post-elements/inline-code.njk' %} and 
+  {% set code = 'featureFlagEnabled' %}
+  {% include 'post-elements/inline-code.njk' %}. 
+
+  <br>
+  <br>
+
+  Behind the scenes, loading this manifest just means to make a 
+  {% set code = 'GET' %}
+  {% include 'post-elements/inline-code.njk' %}
+  request to 
+  {% set code = 'assets/feature-flags.manifest.json' %}
+  {% include 'post-elements/inline-code.njk' %} and then storing the feature flags in the state.
+</p>
+
+<p>
+  Then, we must load the feature flags on application startup and this is pretty straightforward using the 
+  {% set code = 'APP_INITIALIZER' %}
+  {% include 'post-elements/inline-code.njk' %} injection token and providing a factory function as such:
+  
+{% set code %}function initializeFeatureFlags() {
+  const featureFlagsFacade = inject(FeatureFlagsFacadeService);
+  return () => featureFlagsFacade.loadFeatureFlags();
+}{% endset %}
+{% set lang = 'ts' %}
+{% set caption = 'feature-flags-app-initializer.ts' %}
+{% include 'post-elements/code.njk' %}
+
+  In this example, I am additionally creating a provider function that returns 
+  {% set code = 'EnvironmentProviders' %}
+  {% include 'post-elements/inline-code.njk' %} which is corresponds to the new Standalone APIs. Such that the provider function can be called in the app config and encapsulating the logic for loading the feature flags from the app config.
+
+  {% set code %}export function provideFeatureFlags(): EnvironmentProviders {
+  return makeEnvironmentProviders([
+    {
+      provide: APP_INITIALIZER,
+      useFactory: () => initializeFeatureFlags(),
+      deps: [FeatureFlagsFacadeService],
+      multi: true,
+    },
+  ]);
+}{% endset %}
+{% set lang = 'ts' %}
+{% set caption = 'feature-flags-app-initializer.ts' %}
+{% include 'post-elements/code.njk' %}
+
+{% set code = 'EnvironmentProviders' %}
+{% include 'post-elements/inline-code.njk' %} which is corresponds to the new Standalone APIs. Such that the provider function can be called in the app config and encapsulating the logic for loading the feature flags from the app config.
+
+{% set code %}import { provideHttpClient } from '@angular/common/http';
+import { ApplicationConfig } from '@angular/core';
+import {
+  provideRouter,
+  withComponentInputBinding,
+  withEnabledBlockingInitialNavigation,
+} from '@angular/router';
+import { appRoutes } from './app.routes';
+import { provideAnimations } from '@angular/platform-browser/animations';
+import { provideFeatureFlags } from '@ng-journal/shared/data-access';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideRouter(
+      appRoutes,
+      withEnabledBlockingInitialNavigation(),
+      withComponentInputBinding()
+    ),
+    provideAnimations(),
+    provideHttpClient(),
+    provideFeatureFlags(), // ⬅️ Calling the provider function
+  ],
+};{% endset %}
+{% set lang = 'ts' %}
+{% set caption = 'app.config.ts' %}
+{% include 'post-elements/code.njk' %}
+
+Now, after our app is initialized, we will directly have access to the feature flags, such that we can now restrict access to certain routes by creating a guard. 
+In Angular 16, a new guard called 
+{% set code = 'CanMatch' %}
+{% include 'post-elements/inline-code.njk' %} was introduced, which can be used to check if a given route can be matched. If all guards return true, the route can be matched. Otherwise, the route cannot be matched.
+
+<br>
+All we have to do, is the create a higher order function, which takes a feature flag name as a parameter and returns a 
+{% set code = 'CanMatchFn' %}
+{% include 'post-elements/inline-code.njk' %} guard. This guard then checks if the feature flag is enabled and if so, returns true, otherwise false.
+
+{% set code %}export function featureFlagGuard(featureFlag: FeatureFlag): CanMatchFn {
+  return () => {
+    const featureFlagsFacade = inject(FeatureFlagsFacadeService);
+    const enabled = featureFlagsFacade.featureFlagEnabled(featureFlag);
+    return enabled;
+  };
+}{% endset %}
+{% set lang = 'ts' %}
+{% set caption = 'feature-flag.guard.ts' %}
+{% include 'post-elements/code.njk' %}
+
+Next, the guard has to be applied to all the feature routes.
+
+{% set code %}import { Routes } from '@angular/router';
+import { featureFlagGuard } from '@ng-journal/shared/data-access';
+
+export const routes: Routes = [
+  {
+    path: '',
+    children: [
+      {
+        path: 'list',
+        canMatch: [featureFlagGuard('claim-list')],
+        loadComponent: async () =>
+          (await import('@ng-journal/claim/feature-list')).ListComponent,
+      },
+      {
+        path: ':id/details',
+        canMatch: [featureFlagGuard('claim-details')],
+        loadComponent: async () =>
+          (await import('@ng-journal/claim/feature-details')).DetailsComponent,
+      },
+      {
+        path: 'create',
+        canMatch: [featureFlagGuard('claim-create')],
+        loadComponent: async () =>
+          (await import('@ng-journal/claim/feature-create')).CreateComponent,
+      },
+    ],
+  },
+];
+{% endset %}
+{% set lang = 'ts' %}
+{% set caption = 'claim.routes.ts' %}
+{% include 'post-elements/code.njk' %}
+
+<b>Now, all of our features are protected by the guard.</b> But that is only half of the job, because the user could still click on the navigation buttons to the disabled features in the sidebar.
+  Although, the user would not be able to access the route, the navigation buttons would still be visible and clickable. Therefore, we have to hide the navigation buttons for disabled features.
+
+</p>
+
+<p>
+  This means, that we have to create a structural directive that hides the navigation buttons for disabled features. The implementation basically is a simplified 
+  {% set code = '*ngIf' %}
+  {% include 'post-elements/inline-code.njk' %} directive, which checks if the feature flag is enabled and if so, renders the navigation button, otherwise not.
+</p>
+
+{% set code %}@Directive({
+  selector: '[ngJournalFeatureFlag]',
+  standalone: true,
+})
+export class FeatureFlagDirective implements OnChanges {
+  readonly #templateRef = inject(TemplateRef<unknown>);
+  readonly #viewContainerRef = inject(ViewContainerRef);
+  readonly #featureFlagsFacade = inject(FeatureFlagsFacadeService);
+
+  @Input({ required: true, alias: 'ngJournalFeatureFlag' })
+  featureFlag!: FeatureFlag | null;
+
+  @Input() ngJournalFeatureFlagElse: TemplateRef<unknown> | null = null;
+
+  constructor() {
+    effect(() => {
+      if (this.featureFlag) {
+        this.#onChanges();
+      }
+    });
+  }
+
+  ngOnChanges() {
+    this.#onChanges();
+  }
+
+  #onChanges() {
+    this.#viewContainerRef.clear();
+    if (this.#featureFlagEnabled()) {
+      this.#viewContainerRef.createEmbeddedView(this.#templateRef);
+    } else if (this.ngJournalFeatureFlagElse) {
+      this.#viewContainerRef.createEmbeddedView(this.ngJournalFeatureFlagElse);
+    }
+  }
+
+  #featureFlagEnabled() {
+    if (!this.featureFlag) {
+      return true;
+    }
+
+    return this.#featureFlagsFacade.featureFlagEnabled(this.featureFlag);
+  }
+}
+{% endset %}
+{% set lang = 'ts' %}
+{% set caption = 'feature-flag.directive.ts' %}
+{% include 'post-elements/code.njk' %}
+
+{% set code %}<ng-container
+  *ngJournalFeatureFlag="'contract-edit'; else editContractDisabled"
+>
+  <ng-journal-header
+    title="Contract Details"
+    [showEditButton]="true"
+    (editButtonClicked)="this.onEditButtonClicked()"
+  />
+</ng-container>
+<ng-template #editContractDisabled>
+  <ng-journal-header title="Contract Details" />
+</ng-template>
+
+{% endset %}
+{% set lang = 'ts' %}
+{% set caption = 'contract-detail.component.ts' %}
+{% include 'post-elements/code.njk' %}
+
+<p>
+  Now, it is possible to restrict routes and UI elements, based on the feature flags provided by the manifest file.
+  <br>
+  <br>
+  For example, if we would disable all of the create features, the UI would look like this:
+
+  {% set image = 'https://i.imgur.com/gAk3HXk.png' %}
+{% set imageAlt = 'insurance portal with disabled create features' %} 
+{% set maxHeight = undefined %}
+{% set imageCaption = 'Insurance Portal with disabled create features' %}
+{% include 'post-elements/image.njk' %}
+</p>
+
+{% set subHeading = 'Conclusion' %}
+{% include 'post-elements/sub-heading.njk' %}
+
+<p>
+  In conclusion, feature flags are a great way to enable or disable features at runtime. 
+  A successful implementation can be achieved by using <b>manifests, APP_INITIALIZER, structural directives, functional guards, and standalone APIs</b>.
+
+  <br>
+  <br>
+  Make sure to checkout the repository for the full implementation, such that you can play around with it yourself and get a better feeling about the bigger picture. 
+  For questions, please feel free to drop a comment.
+</p>
+
+
+{% set repo = 'HaasStefan/ng-journal-insurance-portal' %}
+{% include 'post-elements/repo.njk' %}
