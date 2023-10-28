@@ -1,0 +1,287 @@
+---
+title: Modular Monoliths with Nx
+subtitle: Building scalable Angular applications
+date: 2023-10-29
+tags: featured
+description: Frontend architecture is a crucial part of every application. It is the foundation for maintainable and scalable applications. In this blog, I will show you how to build scalable Angular applications using Nx. We will learn about monorepositories, Nx, and the Enterprise Monorepo Pattern. We will also discuss best practices and patterns for building scalable Angular applications.
+keywords:
+  [
+    angular,
+    nx,
+    nx-workspace,
+    monorepo,
+    enterprise,
+    architecture,
+    large-scale,
+    large,
+    scale,
+    scalable,
+    scalable-angular,
+    scalable-angular-architecture,
+    scalable-angular-applications,
+    scalable-angular-apps
+  ]
+image: https://i.imgur.com/lFJGSso.png
+imageAlt: cover-image
+layout: post
+---
+
+<p>
+  {{ description }}.
+  <br>
+  <br>
+
+  But why should you even care about frontend architecture? Why not just build a regular monolith?
+
+  Well, because if you do so, over time, things just evolve and get messy. You will end up with a big ball of mud. And it will be hard to maintain and extend your application. You will have a hard time onboarding new developers. And you will have a hard time scaling your application. And you will have a hard time scaling your team. And you will have a hard time scaling your organization.
+  <br>
+  Therefore, a better approach would be to build a modular monolith. A modular monolith is a monolith that is built with modularity in mind. Hence, we get the simplicity of a monolith, but with a lot more maintainability and scalability.
+  <br>
+  <br>
+  By modularizing the code, changes become more predicatble, because the scope of a change is limited to its module.
+</p>
+
+
+{% set subHeading = 'Talk - Modular Monoliths with Nx' %}
+{% include 'post-elements/sub-heading.njk' %}
+
+<div class="flex justify-center md:p-8">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/2XfhoQY9M7g?si=z7wjXiCYloBdMsgd&amp;start=2118" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+</div>
+
+
+{% set subHeading = 'Monorepos and Nx' %}
+{% include 'post-elements/sub-heading.njk' %}
+<p>
+  A monorepo is a single repository that contains multiple projects. In contrast to a polyrepo, where each project has its own repository.
+
+  This is a big deal, because in an enterprise environment, you usually are dealing with loads of dependencies and it is not uncommon, that you encounter ugly version mismatches. And this is where monorepos come into play. Because in a monorepo, you can easily manage all your dependencies in one place.
+
+  In an integrated monorepo, all apps and libraries included in a monorepo share the same 
+  {% set code = 'package.json' %}
+  {% include 'post-elements/inline-code.njk' %} and 
+  {% set code = 'node_modules' %}
+  {% include 'post-elements/inline-code.njk' %}. 
+
+  <br>
+  <br>
+
+  This means, that all apps and libraries share the same version of Angular, RxJS, NgRx and basically all third-party dependencies in the project.
+
+  Therefore, you will never have version mismatches again. And you will never have to deal with dependency hell again. 
+  On the other hand, you will have to organize migrations carefully, because you will have to migrate all apps and libraries at once. 
+  This is a challenge for your organization, but it is definitely worth it.
+
+  <br>
+  <br>
+
+  Since, all libs and apps are in one place, you no longer have to distribute and consume them via NPM. 
+  Instead, you can just import them via relative paths. So you no longer have the burden of thinking about versioning and publishing. All you have to do in a monorepo, is a simple import statement.
+  This means, that your latest checkout of your master/main branch is always the latest version of your application in a trunk based development workflow.
+
+  <br>
+  <br>
+
+  All the above mentioned benefits may make you wondering why not everybody is already using monorepos. Well, the answer is simple. Because monorepos are hard to manage. 
+  In a monorepo, an app is usually split into many tiny libraries, which are then imported into the app. This makes for better module boundaries, but managing a three-digit number of libraries still remains a challenge. Such an amount of projects has a huge impact on the performance of linting, testing, building, and serving.
+  
+  <br>
+  <br>
+
+  But Nx solves this problem. Nx is a set of tools and libraries that help you to build, test, and serve your applications. It is built on top of the Angular CLI and provides a lot of additional functionality. Interactive dependency graphs. Computation caching. Distributedd task execution. Generators. Executors. And much more.
+  But the most underrated feature of them all are <b>Module Boundaries</b>, which can be used to architect applications with strict boundaries and architectural validations.
+</p>
+
+
+{% set subHeading = 'Module Boundaries' %}
+{% include 'post-elements/sub-heading.njk' %}
+
+<p>
+  First of all, let's discuss why 
+  {% set code = 'NgModule' %}
+  {% include 'post-elements/inline-code.njk' %}'s are not strict boundaries and a better approach is needed. 
+  Alhtough, many applications use 
+  {% set code = 'NgModule' %}
+  {% include 'post-elements/inline-code.njk' %}'s to organize their code and separate concerns, they are not guaranteed to be used as intended. 
+  For, example a component, which is declared but not exported in an 
+  {% set code = 'NgModule' %}
+  {% include 'post-elements/inline-code.njk' %} can still be used outside of the 
+  {% set code = 'NgModule' %}
+  {% include 'post-elements/inline-code.njk' %}. Even though, the intention clearly was to use it only inside of the 
+  {% set code = 'NgModule' %}
+  {% include 'post-elements/inline-code.njk' %}. By going through the file-system, the component can be lazy-loaded and dynamically bootstraped - hence breaking the boundary.
+  <br>
+  Obviously, in a standalone world without any 
+  {% set code = 'NgModule' %}
+  {% include 'post-elements/inline-code.njk' %}'s, we need a different solution either way to enforce architectural boundaries.
+
+
+  {% set image = 'https://i.imgur.com/1EBG4kK.png' %}
+  {% set imageAlt = 'module boundaries' %} 
+  {% set maxHeight = undefined %}
+  {% set imageCaption = 'Module Boundaries' %}
+  {% include 'post-elements/image.njk' %}
+
+  And this is where Nx comes into play. First, we can define arbitrary
+  {% set code = 'tags' %}
+  {% include 'post-elements/inline-code.njk' %} for our apps and libs inside their 
+  {% set code = 'project.json' %}
+  {% include 'post-elements/inline-code.njk' %} files. 
+  These tags are crucial for the next step, because they are a reference, which can be used to define 
+  {% set code = 'dependencies' %}
+  {% include 'post-elements/inline-code.njk' %} between apps and libs.
+
+  <br>
+
+  Nx provides the 
+  {% set code = 'nx/enforce-module-boundaries' %}
+  {% include 'post-elements/inline-code.njk' %} rule, which can be adapted in the 
+  {% set code = '.eslintrc.json' %}
+  {% include 'post-elements/inline-code.njk' %} file. In there, we can explicitly define which 
+  {% set code = 'tags' %}
+  {% include 'post-elements/inline-code.njk' %} are allowed to be imported by which other 
+  {% set code = 'tags' %}
+  {% include 'post-elements/inline-code.njk' %}.
+
+  {% set code %}"rules": {
+  "@nx/enforce-module-boundaries": [
+    "error",
+    {
+      "enforceBuildableLibDependency": true,
+      "allow": [],
+      "depConstraints": [
+        {
+          "sourceTag": "scope:boundary-a",
+          "onlyDependOnLibsWithTags": ["scope:boundary-a", "scope:shared"]
+        },
+        {
+          "sourceTag": "scope:boundary-b",
+          "onlyDependOnLibsWithTags": ["scope:boundary-b", "scope:shared"]
+        },
+        {
+          "sourceTag": "scope:shared",
+          "onlyDependOnLibsWithTags": ["scope:shared"]
+        }
+      ]
+    }
+  ]
+}{% endset %}
+{% set lang = 'json' %}
+{% set caption = '.eslintrc.json' %}
+{% include 'post-elements/code.njk' %}
+
+  
+ Having defined the boundaries as such, importing something from 
+  {% set code = 'scope:boundary-b' %}
+  {% include 'post-elements/inline-code.njk' %} into 
+  {% set code = 'scope:boundary-a' %}
+  {% include 'post-elements/inline-code.njk' %} will result in a linting error. 
+  This is a huge benefit, because it enforces architectural boundaries and prevents accidental violations of the architecture. 
+
+  When doing exactly this, we would get the following linting error:
+
+  {% set image = 'https://i.imgur.com/3U3U8vk.png' %}
+  {% set imageAlt = 'linting error via IDE' %} 
+  {% set maxHeight = undefined %}
+  {% set imageCaption = 'Module Boundary Linting Error' %}
+  {% include 'post-elements/image.njk' %}
+
+  Now, that we know how to enforce architectural boundaries, let's discuss how we should define them and where to draw the line.
+  For this, I would like to introduce a slight variation to the Enterprise Monorepo Pattern - which is used as a blueprint architecture for many enterprise Angular applications.
+  </p>
+
+{% set subHeading = 'Enterprise Monorepo Pattern' %}
+{% include 'post-elements/sub-heading.njk' %}
+
+<p>
+  The <b>Enterprise Monorepo Pattern</b> stems from the Enterprise Angular Monorepo Patterns book by Nx, which covers multiple patterns, but since the pattern I will be showing in this section is the most popular pattern from this book - I would just title it the Enterprise Monorepo Pattern.
+  In fact, I will introduce you to a slight variation of the traditional pattern, which solves a few issues, that I encountered in the past on real-world projects.
+
+
+  <br>
+  <br>
+
+  Let's consider the following example. We have an application, which is called 
+  {% set code = 'insurance-portal' %}
+  {% include 'post-elements/inline-code.njk' %}. It is a CRM which is used to manage claims, contracts, complaints and customers.
+  
+  {% set image = 'https://i.imgur.com/KwLtArG.png' %}
+  {% set imageAlt = 'insurance portal' %} 
+  {% set maxHeight = undefined %}
+  {% set imageCaption = 'Insurance Portal' %}
+  {% include 'post-elements/image.njk' %}
+  
+  Instead of building on big application without any boundaries, we slice the application into domains, which embody a specific business domain.
+  In our case, we have the domains 
+  {% set code = 'claims' %}
+  {% include 'post-elements/inline-code.njk' %}, 
+  {% set code = 'contracts' %}
+  {% include 'post-elements/inline-code.njk' %}, 
+  {% set code = 'complaints' %}
+  {% include 'post-elements/inline-code.njk' %} and 
+  {% set code = 'customers' %}
+  {% include 'post-elements/inline-code.njk' %}. Additionally, every application has a
+  {% set code = 'shared' %}
+  {% include 'post-elements/inline-code.njk' %} domain, which contains shared code, which can be used by all other domains. 
+  Such generic domain is especially useful, because the business domains should be as isolated as possible, hence ideally there should not be any dependencies between them.
+
+
+  {% set image = 'https://i.imgur.com/OlUul42.png' %}
+  {% set imageAlt = 'slicing of domains' %} 
+  {% set maxHeight = undefined %}
+  {% set imageCaption = 'Domain Slicing' %}
+  {% include 'post-elements/image.njk' %}
+
+
+  Now, that we have defined the domains, let's discuss how to organize the code inside of them. 
+  We have the following library types: <b>routes</b>, <b>api</b>, <b>feature</b>, <b>ui</b>, <b>data-access</b>, <b>utils</b>, <b>models</b>.
+
+  {% set image = 'https://i.imgur.com/08HcnGS.png' %}
+  {% set imageAlt = 'Enterprise Monorepo Pattern dependency graph' %} 
+  {% set maxHeight = undefined %}
+  {% set imageCaption = 'Enterprise Monorepo Pattern' %}
+  {% include 'post-elements/image.njk' %}
+
+  <ul class="list-disc px-5">
+    <li>  <b>Routes</b> are used to define the routing configuration of a domain. By having a dedicated library type for just routes makes it possible to compose multiple features on one page.
+    </li>
+    <li>
+      <b>API</b> libraries are private API's which act as a gateway between domains. They are used to share the least minimal amount of code between domains.
+
+    </li>
+    <li>
+      <b>Feature</b> libraries are used to implement a specific feature. They are context-aware components, which are not meant to be reused.
+    </li>
+    <li>
+      <b>UI</b> libraries are used to implement reusable components, which are not context-aware. They are meant to be reused.
+    </li>
+    <li>
+      <b>Data Access</b> libraries are used to implement state, business logic and services, which are used to fetch data from the backend. They usually hydrate the feature layer with data and business logic.
+    </li>
+    <li>
+      <b>Utils</b> libraries are used to implement utility functions, which are used by multiple other libraries. An example would be a date formatter.
+    </li>
+    <li>
+      <b>Models</b> libraries are used to implement models, which are used by multiple other libraries. An example would be a claim interface definition.
+    </li>
+  </ul>
+
+  <br>
+
+  There is a clear dependency flow from top to bottom. Meaning that libraries are allowed to depend on libraries down below, but not upwards.
+  For example, a feature library is allowed to depend on a ui library, but not vice versa. This is crucial to ensure that the smart vs dumb component principle is not violated.
+
+  <br>
+  <br>
+
+  For more information about the Enterprise Monorepo Pattern, I would recommend you to read this blog post I did a while ago on the more traditional approach:
+  {% set link = '/blog/2022-12-19-the-enterprise-monorepo-angular-patterns/' %}
+  {% set linkText = 'Enterprise Monorepo Angular Patterns' %}
+  {% include 'post-elements/hyper-link.njk' %}
+
+  <br>
+  Definitely make sure to checkout the repository linked below containing all the code examples from this blog post (and a lot more).
+</p>
+
+{% set repo = 'HaasStefan/ng-journal-insurance-portal' %}
+{% include 'post-elements/repo.njk' %}
